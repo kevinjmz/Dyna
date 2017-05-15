@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "412287721878",
+    "firebase_url": "https://dyna-ba42b.firebaseio.com",
+    "project_id": "dyna-ba42b",
+    "storage_bucket": "dyna-ba42b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:412287721878:android:559771ea834ed3ce",
+        "android_client_info": {
+          "package_name": "com.dyna.dyna"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "412287721878-33bc50dq1okr6slqg43j1f4ug7avan0j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dyna.dyna",
+            "certificate_hash": "88b1e1b864a9b6df0cd457dc4ff9aa1d7ece7d98"
+          }
+        },
+        {
+          "client_id": "412287721878-00rlo0gt0idi0cs85jbh63aqebvtkfme.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxtz_ZGGyFZTifjQ3Dp3EkyfyZjDxXog8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "412287721878-00rlo0gt0idi0cs85jbh63aqebvtkfme.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/cont_nav_item_root"
+    >
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btn_nav_item"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center"
+        android:textColor="@android:color/background_dark"
+        android:background="?attr/selectableItemBackground"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp" />
+    <!--android:drawableLeft="@drawable/side_nav_bar"-->
+
+</LinearLayout>
