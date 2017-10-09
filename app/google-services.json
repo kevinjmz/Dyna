@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "412287721878-nvq97pt2cesp25dvreipf49pl8cltlri.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dyna.dyna",
+            "certificate_hash": "7d1ec01664e5fdd15cb03c0e86712064b669a44d"
+          }
+        },
+        {
           "client_id": "412287721878-33bc50dq1okr6slqg43j1f4ug7avan0j.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

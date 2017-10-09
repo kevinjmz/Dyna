@@ -3,12 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
     <include
         layout="@layout/toolbar"
         android:id="@+id/app_bar"
         />
-
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/nvd_act_main"
         android:layout_width="match_parent"

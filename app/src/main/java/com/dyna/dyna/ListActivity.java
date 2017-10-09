@@ -2,36 +2,72 @@ package com.dyna.dyna;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+
 import com.firebase.client.Firebase;
 import com.firebase.ui.database.FirebaseListAdapter;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+
 public class ListActivity extends AppCompatActivity {
 
-    private ListView mListView;
+    private RecyclerView mList;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        mListView = (ListView) findViewById(R.id.mainListView);
+        mList = (RecyclerView) findViewById(R.id.blog_list);
+        mList.setHasFixedSize(true);
+        mList.setLayoutManager(new LinearLayoutManager(this));
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReferenceFromUrl("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
 
-        FirebaseListAdapter <String> firebaseListAdapter = new FirebaseListAdapter<String>(this, String.class, android.R.layout.simple_list_item_1, databaseReference) {
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("ExchangeHouses");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseRecyclerAdapter<List,ViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<List, ViewHolder>(
+                List.class, R.layout.store_row,ViewHolder.class,mDatabase
+        ) {
             @Override
-            protected void populateView(View v, String model, int position) {
-               // TextView textView = (TextView) v.findViewById(android.R.id.text1);
-               // textView.setText(model);
+            protected void populateViewHolder(ViewHolder viewHolder, List model, int position) {
+
             }
         };
 
-        mListView.setAdapter(firebaseListAdapter);
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        View mView;
+
+        public ViewHolder(View itemView){
+            super(itemView);
+            itemView = mView;
+        }
+
+        public void setName(String newName){
+            TextView name = (TextView) mView.findViewById(R.id.store_name);
+            name.setText(newName);
+        }
+        public void setSell (String newSell){
+            TextView sell = (TextView) mView.findViewById(R.id.store_sell);
+            sell.setText(newSell);
+        }
+        public void setBuy (String newBuy){
+            TextView buy = (TextView) mView.findViewById(R.id.store_buy);
+            buy.setText(newBuy);
+        }
     }
 }

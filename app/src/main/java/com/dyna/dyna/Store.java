@@ -3,44 +3,39 @@ import com.google.android.gms.maps.model.Marker;
 import java.io.Serializable;
 
 public class Store implements Serializable {
-    private String name;
-    private double latitude;
-    private double longitude;
-    private String sell;
-    private String buy;
-    private String city;
+    private String Name;
+    private double Latitude;
+    private double Longitude;
+    private String Sell;
+    private String Buy;
+  //  private String city;
     private Marker marker=null;
 
-    public Store(String name, double latitude, double longitude, String sell, String buy){
-        this.name=name;
-        this.latitude=latitude;
-        this.longitude=longitude;
-        this.sell=sell;
-        this.buy=buy;
+    public Store(String Name, double Latitude, double Longitude, String Sell, String Buy){
+        this.Name=Name;
+        this.Latitude=Latitude;
+        this.Longitude=Longitude;
+        this.Sell=Sell;
+        this.Buy=Buy;
     }
-/*    public Store(String name, double latitude, double longitude){
-        this.name=name;
-        this.latitude=latitude;
-        this.longitude=longitude;
-        buy=0.00;
-        sell=0.00;
-    }*/
+
+    public Store (){} //default constructor
 
 
     public void setName(String new_Name){
-        name=new_Name;
+        Name=new_Name;
     }
     public void setSell(String new_Sell){
-        sell=new_Sell;
+        Sell=new_Sell;
     }
-    public void setBuy (String new_Buy){buy = new_Buy;}
+    public void setBuy (String new_Buy){Buy = new_Buy;}
     public void setMarker(Marker newM){marker = newM;}
 
-    public String getName(){return name;}
-    public double getLatitude(){return latitude;}
-    public double getLongitude(){return longitude;}
-    public String getSell(){return sell;}
-    public String getBuy(){return buy;}
+    public String getName(){return Name;}
+    public double getLatitude(){return Latitude;}
+    public double getLongitude(){return Longitude;}
+    public String getSell(){return Sell;}
+    public String getBuy(){return Buy;}
     public Marker getMarker(){return marker;}
 
 
