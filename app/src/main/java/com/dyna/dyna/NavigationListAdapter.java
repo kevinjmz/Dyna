@@ -37,7 +37,7 @@ public class NavigationListAdapter extends RecyclerView.Adapter<NavigationListAd
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.item_navigation_list, parent, false);
+        View view = inflater.inflate(R.layout.item_navigation_drawer, parent, false);
         return new ViewHolder(view);
     }
 
@@ -54,14 +54,13 @@ public class NavigationListAdapter extends RecyclerView.Adapter<NavigationListAd
     public int getItemCount() {
         return icons.size();
     }
+
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        // ViewGroup container;
         AppCompatButton navitem;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
             //container = (ViewGroup) itemView.findViewById(R.id.nav_list_container);
             navitem = (AppCompatButton) itemView.findViewById(R.id.btn_nav_item);
             navitem.setOnClickListener(new View.OnClickListener() {

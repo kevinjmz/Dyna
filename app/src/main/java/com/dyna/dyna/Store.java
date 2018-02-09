@@ -10,6 +10,8 @@ public class Store implements Serializable {
     private String Buy;
   //  private String city;
     private Marker marker=null;
+  //  private double distanceToUser;
+
 
     public Store(String Name, double Latitude, double Longitude, String Sell, String Buy){
         this.Name=Name;

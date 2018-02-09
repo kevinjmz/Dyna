@@ -1,159 +1,134 @@
-    package com.dyna.dyna;
+package com.dyna.dyna;
 
-    import android.Manifest;
-    import android.content.Intent;
-    import android.content.pm.PackageManager;
-    import android.graphics.drawable.Drawable;
-    import android.os.Build;
-    import android.support.annotation.NonNull;
-    import android.support.v4.app.ActivityCompat;
-    import android.os.Bundle;
-    import android.support.v4.content.ContextCompat;
-    import android.support.v4.widget.DrawerLayout;
-    import android.support.v7.app.ActionBarDrawerToggle;
-    import android.support.v7.app.AppCompatActivity;
-    import android.support.v7.widget.RecyclerView;
-    import android.support.v7.widget.Toolbar;
-    import android.util.Log;
-    import android.view.View;
-    import android.widget.Toast;
-    import com.firebase.client.Firebase;
-    import com.firebase.client.FirebaseError;
-    import com.google.firebase.database.ValueEventListener;
-    import com.google.android.gms.maps.CameraUpdateFactory;
-    import com.google.android.gms.maps.GoogleMap;
-    import com.google.android.gms.maps.OnMapReadyCallback;
-    import com.google.android.gms.maps.SupportMapFragment;
-    import com.google.android.gms.maps.model.BitmapDescriptor;
-    import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-    import com.google.android.gms.maps.model.CircleOptions;
-    import com.google.android.gms.maps.model.LatLng;
-    import com.google.android.gms.maps.model.MapStyleOptions;
-    import com.google.android.gms.maps.model.Marker;
-    import com.google.android.gms.maps.model.MarkerOptions;
-    import com.google.firebase.FirebaseApp;
-    import com.google.firebase.database.DatabaseError;
-    import com.google.firebase.database.DatabaseReference;
-    import com.google.firebase.database.FirebaseDatabase;
-    import java.io.Serializable;
-    import java.util.ArrayList;
-    import java.util.List;
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+
+import com.dyna.dyna.List.ListActivity;
+import com.firebase.client.Firebase;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.security.auth.Subject;
 
 
-    public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer {
 
-        private GoogleMap mMap;
-        private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
-        private static final int MY_PERMISSION_REQUEST_COARSE_LOCATION = 102;
-        private boolean permissionIsGranted = false;
-        private List<Store> storeList = new ArrayList<>();
-        //private Button mlogin_btn;//
+    private GoogleMap mMap;
+    private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
+    private static final int MY_PERMISSION_REQUEST_COARSE_LOCATION = 102;
+    private boolean permissionIsGranted = false;
+    private ArrayList<Store> storeList = new ArrayList<>();
+    private double currentLocation_latitude;
+    private double currentLocation_longitude;
 
-        //For toolbar
-        private ArrayList<Drawable> icons;
-        private ArrayList<String> labels;
-        private DrawerLayout navDrawer;
-        private RecyclerView navList;
-        private Toolbar toolbar;
-        private ActionBarDrawerToggle toggle;
-        Firebase rootRef;
+    //private Button mlogin_btn;//
 
-        Store cashItH = new Store("Cash it Here", 31.776246, -106.472977, "20.00", "20.00");
-        Store melekZ = new Store("Melek Zaragoza", 31.71689, -106.308117, "18.29", "18.57");//name, latitude, longitude, sell, buy
-        Store melekP = new Store("Melek Paisano", 31.7553872, -106.4856193, "18.50", "19.29");
-        Store valuntaC = new Store("Valunta Corporation", 31.756398, -106.486097, "18.75", "19.30");
-        Store plainsCB = new Store("Plains Capital Bank", 31.807519, -106.510190, "20.10", "20.15");
+    //For toolbar
+    private ArrayList<Drawable> icons;
+    private ArrayList<String> labels;
+    private DrawerLayout navDrawer;
+    private RecyclerView navList;
+    private Toolbar toolbar;
+    private ActionBarDrawerToggle toggle;
 
+    Firebase rootRef;
+
+    private Observable databaseObserver;
+
+    Store cashItH = new Store("Cash it Here", 31.776246, -106.472977, "20.00", "20.00");
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        Firebase.setAndroidContext(this);
+
+        setUpToolBar();
+
+        databaseObserver = DatabaseManager.getInstance();
+        databaseObserver.addObserver(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(31.75387, -106.485619)));//focus starting camera to melekPaisano
+        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 13));//adjust zoom on camera
+        mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
+
+        storeList.add(new Store ("TEST 1", 31.776246, -106.472977 ,"20.00","20.00"));
+
+        if (!permissionIsGranted) {
+            requestLocationUpdates();
+        }
+    }
 
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_maps);
-            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
-            Firebase.setAndroidContext(this);
-            createStores();
-            setUpToolBar();
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            if (requestCode == 1 && resultCode == RESULT_OK) {
+                String sellbuy = data.getData().toString();
+                String[] parts = sellbuy.split(" ");
+                Firebase childRefBuy = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Buy");
+                Firebase childRefSell = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Sell");
+                childRefSell.setValue(parts[0]);
+                childRefBuy.setValue(parts[1]);
+            }
+
         }
 
-        private void setUpToolBar() {
-            //For toolbar
-            toolbar = (Toolbar) findViewById(R.id.app_bar);
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-            rootRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
-
-            icons = new ArrayList<>();
-            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark));
-            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark_normal));
-            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark_normal));
-
-            labels = new ArrayList<>();
-            labels.add("Login");
-            labels.add("List");
-            labels.add("Exchange House Options");
-            labels.add("Profile");
-
-            setUpNavDrawer(icons, labels);
-        }
-
-        //Retrieves information from Firebase,Creates Store objects and saves each store on arraylist "StoreList"
-        private void createStores() {
-            FirebaseDatabase.getInstance().getReference().child("ExchangeHouses").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(com.google.firebase.database.DataSnapshot dataSnapshot) {
-                    for (com.google.firebase.database.DataSnapshot snapshot : dataSnapshot.getChildren()){
-                        Store store = snapshot.getValue(Store.class);
-                      //  Log.d("Developer",store.getName()+"  Sell"+ store.getSell() +"  Buy  "+ store.getBuy());//for debugging purpuses
-                        saveInList(store);
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.d("Developer","Error in Database method createStores");
-                }
-            });
-        }
-
-
-
+/*
         private void sendToLogin() {
             Intent intent = new Intent(MapsActivity.this, Login.class);
             //startActivity(intent);
             MapsActivity.this.startActivity(intent);
-        }
+        }*/
 
-        //Check changes on server
-        private void checkDBchanges() {
-            Firebase mRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
-            mRef.child("/Melek Zaragoza").addChildEventListener(new Action_Listener(melekZ).createCEV());
-            mRef.child("/Cash it Here").addChildEventListener(new Action_Listener(cashItH).createCEV());
-            mRef.child("/Melek Paisano").addChildEventListener(new Action_Listener(cashItH).createCEV());
-            mRef.child("/Melek Zaragoza").addChildEventListener(new Action_Listener(melekZ).createCEV());
-            mRef.child("/Plains Capital Bank").addChildEventListener(new Action_Listener(plainsCB).createCEV());
-            mRef.child("/Valunta Corporation").addChildEventListener(new Action_Listener(valuntaC).createCEV());
-        }
-
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
-
-            cashItH = addStore(cashItH.getName(), cashItH.getLatitude(), cashItH.getLongitude(), cashItH.getSell(), cashItH.getBuy());
-            melekZ = addStore(melekZ.getName(), melekZ.getLatitude(), melekZ.getLongitude(), melekZ.getSell(), melekZ.getBuy());
-            melekP = addStore(melekP.getName(), melekP.getLatitude(), melekP.getLongitude(), melekP.getSell(), melekP.getBuy());
-            valuntaC = addStore(valuntaC.getName(), valuntaC.getLatitude(), valuntaC.getLongitude(), valuntaC.getSell(), valuntaC.getBuy());
-            plainsCB = addStore(plainsCB.getName(), plainsCB.getLatitude(), plainsCB.getLongitude(), plainsCB.getSell(), plainsCB.getBuy());
-
-            checkDBchanges();
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(melekP.getLatitude(), melekP.getLongitude())));//focus starting camera to melekPaisano
-            mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.8));//adjust zoom on camera
-            mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-
-            if (!permissionIsGranted) {
-                requestLocationUpdates();
+        //Adds the markers to the map according to the Stores stored at the List given
+        private void addMarkers(List<Store>List){
+            for(Store S: List){
+                Log.d("Marker Created for: ", S.getName());
+                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
+                        .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                S.setMarker(m);
             }
         }
 
@@ -168,6 +143,17 @@
                 return;
             }
             mMap.setMyLocationEnabled(true);
+            try {
+                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                Location myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                currentLocation_latitude = myLocation.getLatitude();
+                currentLocation_longitude = myLocation.getLongitude();
+            }catch(NullPointerException e){
+                Toast.makeText(this, "Make sure you have your location enabled on your device! ", Toast.LENGTH_LONG).show();
+            }
+
+            Log.d("Developer","User's Latitude: "+currentLocation_latitude+" Longitude:  "+currentLocation_longitude);
+
         }
 
 
@@ -201,42 +187,6 @@
             }
         }
 
-        public Store addStore(String name, double latitude, double longitude, String sell, String buy) {
-            saveOnFirebase(name, latitude, longitude, sell, buy);
-            Store NS = new Store(name, latitude, longitude, sell, buy);
-            addMarker(NS);
-            //saveInList(NS);
-
-            return NS;
-        }
-
-        //Saves data of new Stores in Firebase
-        public void saveOnFirebase(String name, double latitude, double longitude, String sell, String buy) {
-
-            // Firebase mRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
-            Firebase mRefChild_house = rootRef.child(name);
-            Firebase mRefChild_name = mRefChild_house.child("Name");
-            mRefChild_name.setValue(name);
-            Firebase mRefChild_latitude = mRefChild_house.child("Latitude");
-            mRefChild_latitude.setValue(latitude);
-            Firebase mRefChild_longitude = mRefChild_house.child("Longitude");
-            mRefChild_longitude.setValue(longitude);
-            Firebase mRefChild_sell = mRefChild_house.child("Sell");
-            mRefChild_sell.setValue(sell);
-            Firebase mRefChild_buy = mRefChild_house.child("Buy");
-            mRefChild_buy.setValue(buy);
-        }
-
-        public void addMarker(Store S) {
-            Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
-                    .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
-            S.setMarker(m);  //same marker in object
-        }
-
-        public void saveInList(Store S) {
-            storeList.add(S);
-        }
-
         public void changeSnippet(Store S, String sell, String buy) {
             S.getMarker().setSnippet("Sell $" + sell + "  Buy $" + buy);
         }
@@ -263,6 +213,8 @@
             navDrawer.addDrawerListener(toggle);
         }
 
+
+        //For navigation drawer options
         @Override
         public void onNavigationItemClick(int position) {
             switch (position) {
@@ -270,7 +222,7 @@
                     startActivity(new Intent(MapsActivity.this, Login.class));
                     break;
                 case 1:
-                    startActivity(new Intent(MapsActivity.this, ListActivity.class));
+                    startActivity(new Intent(this,ListActivity.class));
                     break;
                 case 2:
                     startExchangeHouseOP(cashItH);
@@ -280,6 +232,7 @@
             }
         }
 
+        //prepare intent with information about the store to be changed before calling activity
         private void startExchangeHouseOP(Store store) {
             Intent i = new Intent(MapsActivity.this, ExchangeHouseOp.class);
             Bundle e = new Bundle();
@@ -290,18 +243,41 @@
             startActivityForResult(i, 1);//intent, request code
         }
 
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
+        @SuppressWarnings("ConstantConditions")
+        private void setUpToolBar() {
+            //For toolbar
+            toolbar = findViewById(R.id.app_bar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+            rootRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
 
-            if (requestCode == 1 && resultCode == RESULT_OK) {
-                String sellbuy = data.getData().toString();
-                String[] parts = sellbuy.split(" ");
-                Firebase childRefBuy = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Buy");
-                Firebase childRefSell = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Sell");
-                childRefSell.setValue(parts[0]);
-                childRefBuy.setValue(parts[1]);
-            }
+            icons = new ArrayList<>();
+            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark));
+            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark_normal));
+            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark_normal));
+
+            labels = new ArrayList<>();
+            labels.add("Login");
+            labels.add("List");
+            labels.add("Exchange House Options");
+            labels.add("Profile");
+
+            setUpNavDrawer(icons, labels);
         }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        if (o instanceof DatabaseManager){
+            DatabaseManager databaseManager = (DatabaseManager)o;
+            storeList = databaseManager.getStoreList();
+            addMarkers(storeList);
+        }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        databaseObserver.deleteObserver(this);
+    }
+}
