@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -39,8 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-
-import javax.security.auth.Subject;
 
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer {
@@ -92,8 +89,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(31.75387, -106.485619)));//focus starting camera to melekPaisano
         mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 13));//adjust zoom on camera
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-
-        storeList.add(new Store ("TEST 1", 31.776246, -106.472977 ,"20.00","20.00"));
+        mMap.setPadding(0,80,0,0);  //lower the location button
 
         if (!permissionIsGranted) {
             requestLocationUpdates();
@@ -152,7 +148,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(this, "Make sure you have your location enabled on your device! ", Toast.LENGTH_LONG).show();
             }
 
-            Log.d("Developer","User's Latitude: "+currentLocation_latitude+" Longitude:  "+currentLocation_longitude);
+        //    Log.d("Developer","User's Latitude: "+currentLocation_latitude+" Longitude:  "+currentLocation_longitude);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation_latitude, currentLocation_longitude)));
 
         }
 
@@ -192,11 +189,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         private void setUpNavDrawer(ArrayList<Drawable> icons, ArrayList<String> labels) {
-            navDrawer = (DrawerLayout) findViewById(R.id.nvd_act_main);
+            navDrawer = findViewById(R.id.nvd_act_main);
             NavigationListAdapter adapter = new NavigationListAdapter(this, icons, labels);
             adapter.setOnClickListener(this);
 
-            navList = (RecyclerView) findViewById(R.id.lst_nav_drawer);
+            navList = findViewById(R.id.lst_nav_drawer);
             navList.setAdapter(adapter);
 
             toggle = new ActionBarDrawerToggle(this, navDrawer, toolbar, R.string.open, R.string.close) {
@@ -268,7 +265,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o instanceof DatabaseManager){
+        if (o instanceof DatabaseManager ){
             DatabaseManager databaseManager = (DatabaseManager)o;
             storeList = databaseManager.getStoreList();
             addMarkers(storeList);
@@ -280,4 +277,5 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onDestroy();
         databaseObserver.deleteObserver(this);
     }
+
 }

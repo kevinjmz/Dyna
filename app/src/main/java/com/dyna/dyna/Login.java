@@ -35,10 +35,9 @@ public class Login extends Activity implements Serializable {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login2);
 
-        mEmailField = (EditText) findViewById(R.id.emailField);
-        mPasswordField = (EditText)findViewById(R.id.passwordField);
-        mLoginBtn = (Button) findViewById(R.id.loginBtn);
-
+        mEmailField = findViewById(R.id.emailField);
+        mPasswordField = findViewById(R.id.passwordField);
+        mLoginBtn =  findViewById(R.id.loginBtn);
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {

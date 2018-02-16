@@ -34,10 +34,6 @@ import java.util.Observable;
     ArrayList <Store> storeList = new ArrayList<>();
 
     public ArrayList<Store> getStoreList() {
-        Log.d("Developer", "getStoreList called ");
-        for(Store S:storeList){
-            Log.d("Developer", "in list returned: " + S.getName());
-        }
         return storeList;
     }
 
@@ -55,15 +51,9 @@ import java.util.Observable;
             public void onDataChange(com.google.firebase.database.DataSnapshot dataSnapshot) {
                 for (com.google.firebase.database.DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Store store = snapshot.getValue(Store.class);
-                  //  Log.d("Developer",store.getName()+"  Sell"+ store.getSell() +"  Buy  "+ store.getBuy());//for debugging purpuses
                     storeList.add(store);
                 }
-                //addMarkers(storeList);
-                for(Store S:storeList){
-                    Log.d("Developer", "in STORElist : " + S.getName());
-                }
                 checkDBchanges(storeList);//send list to create a child event listener for each one
-
 
                 //after change
                 setChanged();
@@ -81,8 +71,6 @@ import java.util.Observable;
     public Store addStore(String name, double latitude, double longitude, String sell, String buy) {
         saveOnFirebase(name, latitude, longitude, sell, buy);
         Store NS = new Store(name, latitude, longitude, sell, buy);
-        //addMarker(NS);
-        //saveInList(NS);
         return NS;
     }
 
@@ -104,13 +92,15 @@ import java.util.Observable;
         mRefChild_buy.setValue(buy);
     }
 
+
     //Check changes on server
     //Adds a childEventListener that is constantly checking database changes
     // and sets the snippet when changed using the Child event listener
-    private void checkDBchanges(List<Store> List) {
+    protected void checkDBchanges(List<Store> List) {
+
         Firebase mRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
         for(Store S:List){
-            //   Log.d("Developer","child event listener created to: "+S.getName());
+            Log.d("Developer", "CEV created for: "+S.getName());
             mRef.child("/"+S.getName()).addChildEventListener(new Action_Listener(S).createCEV());
         }
     }

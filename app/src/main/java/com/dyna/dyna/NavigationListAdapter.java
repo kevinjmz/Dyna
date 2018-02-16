@@ -62,7 +62,7 @@ public class NavigationListAdapter extends RecyclerView.Adapter<NavigationListAd
         public ViewHolder(View itemView) {
             super(itemView);
             //container = (ViewGroup) itemView.findViewById(R.id.nav_list_container);
-            navitem = (AppCompatButton) itemView.findViewById(R.id.btn_nav_item);
+            navitem =  itemView.findViewById(R.id.btn_nav_item);
             navitem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

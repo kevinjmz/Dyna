@@ -33,6 +33,7 @@ public class Action_Listener extends MapsActivity implements Serializable {
                      store.setSell( dataSnapshot.getValue().toString());
                  }
                  Action_Listener.super.changeSnippet(store,store.getSell(),store.getBuy());
+                 Log.d("Developer", "something changed in Database ");
              }
 
              @Override

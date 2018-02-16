@@ -3,10 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <include
-        layout="@layout/toolbar"
-        android:id="@+id/app_bar"
-        />
+
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/nvd_act_main"
         android:layout_width="match_parent"
@@ -15,12 +12,17 @@
         tools:context="com.dyna.dyna"
         >
 
+
         <fragment
             android:id="@+id/map"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:context="com.dyna.dyna.MapsActivity">
+            <include
+                layout="@layout/toolbar"
+                android:id="@+id/app_bar"
+                />
 
         </fragment>
 
