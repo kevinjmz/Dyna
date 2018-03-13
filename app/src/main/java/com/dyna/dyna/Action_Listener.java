@@ -1,7 +1,6 @@
 package com.dyna.dyna;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;

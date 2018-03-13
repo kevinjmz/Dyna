@@ -2,6 +2,8 @@
     <string name="app_name">Dyna</string>
     <string name="title_activity_maps">Dyna</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="facebook_app_id">1685601314793517</string>
+    <string name="fb_login_protocol_scheme">fb1685601314793517</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

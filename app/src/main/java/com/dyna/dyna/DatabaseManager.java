@@ -52,6 +52,7 @@ import java.util.Observable;
                 for (com.google.firebase.database.DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Store store = snapshot.getValue(Store.class);
                     storeList.add(store);
+                    Log.d("Developer", "storelist add:  "+store.getName());
                 }
                 checkDBchanges(storeList);//send list to create a child event listener for each one
 

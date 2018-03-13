@@ -9,11 +9,11 @@
         android:id="@+id/btn_nav_item"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:background="?attr/colorPrimary"
         android:gravity="center"
-        android:textColor="@android:color/background_dark"
-        android:background="?attr/selectableItemBackground"
         android:paddingLeft="32dp"
-        android:paddingRight="32dp" />
+        android:paddingRight="32dp"
+        android:textColor="@android:color/background_light" />
     <!--android:drawableLeft="@drawable/side_nav_bar"-->
 
 

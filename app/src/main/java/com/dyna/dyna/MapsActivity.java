@@ -21,7 +21,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.dyna.dyna.List.ListActivity;
 import com.firebase.client.Firebase;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,26 +45,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
     private static final int MY_PERMISSION_REQUEST_COARSE_LOCATION = 102;
     private boolean permissionIsGranted = false;
-    private ArrayList<Store> storeList = new ArrayList<>();
     private double currentLocation_latitude;
     private double currentLocation_longitude;
 
-    //private Button mlogin_btn;//
-
-    //For toolbar
-    private ArrayList<Drawable> icons;
-    private ArrayList<String> labels;
-    private DrawerLayout navDrawer;
-    private RecyclerView navList;
     private Toolbar toolbar;
-    private ActionBarDrawerToggle toggle;
 
     Firebase rootRef;
 
     private Observable databaseObserver;
 
     Store cashItH = new Store("Cash it Here", 31.776246, -106.472977, "20.00", "20.00");
-
 
 
     @Override
@@ -87,20 +76,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(31.75387, -106.485619)));//focus starting camera to melekPaisano
-        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 13));//adjust zoom on camera
+        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 12));//adjust zoom on camera
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-        mMap.setPadding(0,80,0,0);  //lower the location button
+        mMap.setPadding(0, 80, 0, 0);  //lower the location button
 
         if (!permissionIsGranted) {
             requestLocationUpdates();
         }
     }
 
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-            if (requestCode == 1 && resultCode == RESULT_OK) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            if (data.getData() != null) {
                 String sellbuy = data.getData().toString();
                 String[] parts = sellbuy.split(" ");
                 Firebase childRefBuy = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Buy");
@@ -108,8 +98,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 childRefSell.setValue(parts[0]);
                 childRefBuy.setValue(parts[1]);
             }
-
         }
+
+    }
 
 /*
         private void sendToLogin() {
@@ -118,157 +109,168 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             MapsActivity.this.startActivity(intent);
         }*/
 
-        //Adds the markers to the map according to the Stores stored at the List given
-        private void addMarkers(List<Store>List){
-            for(Store S: List){
-                Log.d("Marker Created for: ", S.getName());
-                Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
-                        .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                S.setMarker(m);
-            }
+    //Adds the markers to the map according to the Stores stored at the List given
+    private void addMarkers(List<Store> List) {
+        for (Store S : List) {
+            Log.d("Marker Created for: ", S.getName());
+            Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
+                    .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+            S.setMarker(m);
         }
+    }
 
-        public void requestLocationUpdates() {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                //Permission has not been granted
+    public void requestLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //Permission has not been granted
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_FINE_LOCATION);
-                }
-                return;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_FINE_LOCATION);
             }
-            mMap.setMyLocationEnabled(true);
-            try {
-                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                Location myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+        try {
+            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Location myLocation = null;
+            if (lm != null) {
+                myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            }
+            if (myLocation != null) {
                 currentLocation_latitude = myLocation.getLatitude();
-                currentLocation_longitude = myLocation.getLongitude();
-            }catch(NullPointerException e){
-                Toast.makeText(this, "Make sure you have your location enabled on your device! ", Toast.LENGTH_LONG).show();
             }
+            if (myLocation != null) {
+                currentLocation_longitude = myLocation.getLongitude();
+            }
+        } catch (NullPointerException e) {
+            Toast.makeText(this, "Make sure you have your location enabled on your device! ", Toast.LENGTH_LONG).show();
+        }
 
         //    Log.d("Developer","User's Latitude: "+currentLocation_latitude+" Longitude:  "+currentLocation_longitude);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation_latitude, currentLocation_longitude)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation_latitude, currentLocation_longitude)));
 
-        }
+    }
 
 
-        @Override
-        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            switch (requestCode) {
-                case MY_PERMISSION_REQUEST_FINE_LOCATION:
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        //permission granted
-                        permissionIsGranted = true;
-                    } else {
-                        //permission denied
-                        permissionIsGranted = false;
-                        Toast.makeText(getApplicationContext(), "This app requires location permission to be granted, " +
-                                "please fix  it on Settings/Applications", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-
-                case MY_PERMISSION_REQUEST_COARSE_LOCATION:
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        //permission granted
-                        permissionIsGranted = true;
-                    } else {
-                        //permission denied
-                        permissionIsGranted = false;
-                        Toast.makeText(getApplicationContext(), "This app requires location permission to be granted, " +
-                                "please fix  it on Settings/Applications", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-            }
-        }
-
-        public void changeSnippet(Store S, String sell, String buy) {
-            S.getMarker().setSnippet("Sell $" + sell + "  Buy $" + buy);
-        }
-
-        private void setUpNavDrawer(ArrayList<Drawable> icons, ArrayList<String> labels) {
-            navDrawer = findViewById(R.id.nvd_act_main);
-            NavigationListAdapter adapter = new NavigationListAdapter(this, icons, labels);
-            adapter.setOnClickListener(this);
-
-            navList = findViewById(R.id.lst_nav_drawer);
-            navList.setAdapter(adapter);
-
-            toggle = new ActionBarDrawerToggle(this, navDrawer, toolbar, R.string.open, R.string.close) {
-                public void onDrawerClosed(View drawer) {
-                    super.onDrawerClosed(drawer);
-                    invalidateOptionsMenu();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_FINE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //permission granted
+                    permissionIsGranted = true;
+                } else {
+                    //permission denied
+                    permissionIsGranted = false;
+                    Toast.makeText(getApplicationContext(), "This app requires location permission to be granted, " +
+                            "please fix  it on Settings/Applications", Toast.LENGTH_SHORT).show();
                 }
+                break;
 
-                public void onDrawerOpened(View drawer) {
-                    super.onDrawerOpened(drawer);
-                    invalidateOptionsMenu();
+            case MY_PERMISSION_REQUEST_COARSE_LOCATION:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //permission granted
+                    permissionIsGranted = true;
+                } else {
+                    //permission denied
+                    permissionIsGranted = false;
+                    Toast.makeText(getApplicationContext(), "This app requires location permission to be granted, " +
+                            "please fix  it on Settings/Applications", Toast.LENGTH_SHORT).show();
                 }
-            };
-            navDrawer.addDrawerListener(toggle);
+                break;
         }
+    }
 
+    public void changeSnippet(Store S, String sell, String buy) {
+        S.getMarker().setSnippet("Sell $" + sell + "  Buy $" + buy);
+    }
 
-        //For navigation drawer options
-        @Override
-        public void onNavigationItemClick(int position) {
-            switch (position) {
-                case 0:
-                    startActivity(new Intent(MapsActivity.this, Login.class));
-                    break;
-                case 1:
-                    startActivity(new Intent(this,ListActivity.class));
-                    break;
-                case 2:
-                    startExchangeHouseOP(cashItH);
-                    break;
-                case 3:
-                    break;
+    private void setUpNavDrawer(ArrayList<Drawable> icons, ArrayList<String> labels) {
+        DrawerLayout navDrawer = findViewById(R.id.nvd_act_main);
+        NavigationListAdapter adapter = new NavigationListAdapter(this, icons, labels);
+        adapter.setOnClickListener(this);
+
+        RecyclerView navList = findViewById(R.id.lst_nav_drawer);
+        navList.setAdapter(adapter);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, navDrawer, toolbar, R.string.open, R.string.close) {
+            public void onDrawerClosed(View drawer) {
+                super.onDrawerClosed(drawer);
+                invalidateOptionsMenu();
             }
+
+            public void onDrawerOpened(View drawer) {
+                super.onDrawerOpened(drawer);
+                invalidateOptionsMenu();
+            }
+        };
+        navDrawer.addDrawerListener(toggle);
+        toggle.syncState();
+    }
+
+
+    //For navigation drawer options
+    @Override
+    public void onNavigationItemClick(int position) {
+        switch (position) {
+            case 0:
+                startActivity(new Intent(MapsActivity.this, Login.class));
+                break;
+            case 1:
+                startActivity(new Intent(this, ListActivity.class));
+                break;
+            case 2:
+                startExchangeHouseOP(cashItH);
+                break;
+            case 3:
+                break;
         }
+    }
 
-        //prepare intent with information about the store to be changed before calling activity
-        private void startExchangeHouseOP(Store store) {
-            Intent i = new Intent(MapsActivity.this, ExchangeHouseOp.class);
-            Bundle e = new Bundle();
-            e.putSerializable("STORENAME", store.getName());
-            e.putSerializable("OLDBUY", store.getBuy());
-            e.putSerializable("OLDSELL", store.getSell());
-            i.putExtras(e);
-            startActivityForResult(i, 1);//intent, request code
-        }
+    //prepare intent with information about the store to be changed before calling activity
+    private void startExchangeHouseOP(Store store) {
+        Intent i = new Intent(MapsActivity.this, ExchangeHouseOp.class);
+        Bundle e = new Bundle();
+        e.putSerializable("STORENAME", store.getName());
+        e.putSerializable("OLDBUY", store.getBuy());
+        e.putSerializable("OLDSELL", store.getSell());
+        i.putExtras(e);
+        startActivityForResult(i, 1);//intent, request code
+    }
 
-        @SuppressWarnings("ConstantConditions")
-        private void setUpToolBar() {
-            //For toolbar
-            toolbar = findViewById(R.id.app_bar);
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-            rootRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
+    @SuppressWarnings("ConstantConditions")
+    private void setUpToolBar() {
+        //For toolbar
+        toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        rootRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
 
-            icons = new ArrayList<>();
-            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark));
-            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark_normal));
-            icons.add(ContextCompat.getDrawable(this, R.drawable.common_google_signin_btn_icon_dark_normal));
+        ArrayList<Drawable> icons = new ArrayList<>();
+        icons.add(ContextCompat.getDrawable(this, R.drawable.login));
+        icons.add(ContextCompat.getDrawable(this, R.drawable.list));
+        icons.add(ContextCompat.getDrawable(this, R.drawable.house));
 
-            labels = new ArrayList<>();
-            labels.add("Login");
-            labels.add("List");
-            labels.add("Exchange House Options");
-            labels.add("Profile");
+        ArrayList<String> labels = new ArrayList<>();
 
-            setUpNavDrawer(icons, labels);
-        }
+        labels.add("Login");
+        labels.add("List");
+        labels.add("Exchange House Options");
+        labels.add("Profile");
+        labels.add("Log Out");
+
+        setUpNavDrawer(icons, labels);
+    }
 
     @Override
     public void update(Observable o, Object arg) {
-        if (o instanceof DatabaseManager ){
-            DatabaseManager databaseManager = (DatabaseManager)o;
-            storeList = databaseManager.getStoreList();
+        if (o instanceof DatabaseManager) {
+            DatabaseManager databaseManager = (DatabaseManager) o;
+            ArrayList<Store> storeList = databaseManager.getStoreList();
             addMarkers(storeList);
+            Log.d("Developer", "markers added! @Maps/update");
         }
     }
 
@@ -276,6 +278,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onDestroy() {
         super.onDestroy();
         databaseObserver.deleteObserver(this);
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////
+
+    //Saves data of new Stores in Firebase
+    public void saveOnFirebase(String name, double latitude, double longitude, String sell, String buy) {
+
+        // Firebase mRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
+        Firebase mRefChild_house = rootRef.child(name);
+        Firebase mRefChild_name = mRefChild_house.child("Name");
+        mRefChild_name.setValue(name);
+        Firebase mRefChild_latitude = mRefChild_house.child("Latitude");
+        mRefChild_latitude.setValue(latitude);
+        Firebase mRefChild_longitude = mRefChild_house.child("Longitude");
+        mRefChild_longitude.setValue(longitude);
+        Firebase mRefChild_sell = mRefChild_house.child("Sell");
+        mRefChild_sell.setValue(sell);
+        Firebase mRefChild_buy = mRefChild_house.child("Buy");
+        mRefChild_buy.setValue(buy);
     }
 
 }
