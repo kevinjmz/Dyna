@@ -9,9 +9,7 @@
         android:id="@+id/nvd_act_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/app_bar"
-        tools:context="com.dyna.dyna"
-        >
+        android:layout_below="@+id/app_bar">
 
 
         <fragment
@@ -20,13 +18,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:context="com.dyna.dyna.MapsActivity">
+
             <include
-                layout="@layout/toolbar"
                 android:id="@+id/app_bar"
-                />
-
-
+                layout="@layout/toolbar" />
         </fragment>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/maps_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0" />
+        </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/lst_nav_drawer"

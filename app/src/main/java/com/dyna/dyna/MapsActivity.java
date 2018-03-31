@@ -15,6 +15,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -39,7 +41,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
@@ -48,11 +50,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double currentLocation_latitude;
     private double currentLocation_longitude;
 
+    private ArrayList<Store> storeList;
+
     private Toolbar toolbar;
 
     Firebase rootRef;
 
     private Observable databaseObserver;
+
+    private RecyclerView list_container;
+    private LinearLayoutManager layout;
 
     Store cashItH = new Store("Cash it Here", 31.776246, -106.472977, "20.00", "20.00");
 
@@ -60,16 +67,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        Firebase.setAndroidContext(this);
 
+        setUpMap();
         setUpToolBar();
 
         databaseObserver = DatabaseManager.getInstance();
         databaseObserver.addObserver(this);
+
     }
 
     @Override
@@ -79,6 +83,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 12));//adjust zoom on camera
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
         mMap.setPadding(0, 80, 0, 0);  //lower the location button
+        UiSettings uiSettings=mMap.getUiSettings();
+        uiSettings.setCompassEnabled(false);//remove compass
+        uiSettings.setMapToolbarEnabled(false);//remove buttons triggered by markers
+
+        mMap.setOnMarkerClickListener(this);
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                list_container.setAlpha(0);
+            }
+        });
 
         if (!permissionIsGranted) {
             requestLocationUpdates();
@@ -112,7 +127,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Adds the markers to the map according to the Stores stored at the List given
     private void addMarkers(List<Store> List) {
         for (Store S : List) {
-            Log.d("Marker Created for: ", S.getName());
+            //Log.d("Marker Created for: ", S.getName());
             Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
                     .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
             S.setMarker(m);
@@ -268,9 +283,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void update(Observable o, Object arg) {
         if (o instanceof DatabaseManager) {
             DatabaseManager databaseManager = (DatabaseManager) o;
-            ArrayList<Store> storeList = databaseManager.getStoreList();
+            storeList = databaseManager.getStoreList();
             addMarkers(storeList);
-            Log.d("Developer", "markers added! @Maps/update");
+            setUpList();
+         //   Log.d("Developer", "markers added! @Maps/update");
         }
     }
 
@@ -280,24 +296,32 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         databaseObserver.deleteObserver(this);
     }
 
-
-    //////////////////////////////////////////////////////////////////////////
-
-    //Saves data of new Stores in Firebase
-    public void saveOnFirebase(String name, double latitude, double longitude, String sell, String buy) {
-
-        // Firebase mRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
-        Firebase mRefChild_house = rootRef.child(name);
-        Firebase mRefChild_name = mRefChild_house.child("Name");
-        mRefChild_name.setValue(name);
-        Firebase mRefChild_latitude = mRefChild_house.child("Latitude");
-        mRefChild_latitude.setValue(latitude);
-        Firebase mRefChild_longitude = mRefChild_house.child("Longitude");
-        mRefChild_longitude.setValue(longitude);
-        Firebase mRefChild_sell = mRefChild_house.child("Sell");
-        mRefChild_sell.setValue(sell);
-        Firebase mRefChild_buy = mRefChild_house.child("Buy");
-        mRefChild_buy.setValue(buy);
+    public void setUpMap(){
+        setContentView(R.layout.activity_maps);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        Firebase.setAndroidContext(this);
     }
 
+    public void setUpList(){
+        list_container = findViewById(R.id.maps_list);
+        list_container.setHasFixedSize(true);
+        layout = new LinearLayoutManager(getApplicationContext());
+        layout.setOrientation(LinearLayoutManager.HORIZONTAL);
+        list_container.setAdapter(new Maps_itemAdapter(this, storeList));
+        list_container.setLayoutManager(layout);
+       // layout.scrollToPosition(2);
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        list_container.setAlpha(1);
+        for(Store S : storeList) {
+            if (marker.getTitle().equals(S.getName())){
+                layout.scrollToPosition(storeList.indexOf(S));
+            }
+        }
+        return false;
+    }
 }

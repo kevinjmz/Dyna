@@ -52,7 +52,7 @@ import java.util.Observable;
                 for (com.google.firebase.database.DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Store store = snapshot.getValue(Store.class);
                     storeList.add(store);
-                    Log.d("Developer", "storelist add:  "+store.getName());
+                 //   Log.d("Developer", " @DatabaseObserver storelist add:  "+store.getName());
                 }
                 checkDBchanges(storeList);//send list to create a child event listener for each one
 
@@ -101,7 +101,7 @@ import java.util.Observable;
 
         Firebase mRef = new Firebase("https://dyna-ba42b.firebaseio.com/ExchangeHouses");
         for(Store S:List){
-            Log.d("Developer", "CEV created for: "+S.getName());
+        //    Log.d("Developer", "CEV created for: "+S.getName());
             mRef.child("/"+S.getName()).addChildEventListener(new Action_Listener(S).createCEV());
         }
     }

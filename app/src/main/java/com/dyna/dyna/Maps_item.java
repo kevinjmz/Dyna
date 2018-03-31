@@ -1,5 +1,6 @@
 package com.dyna.dyna;
 
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -11,13 +12,15 @@ public class Maps_item {
     TextView address;
     TextView sell;
     TextView buy;
+    Button go;
 
 
-    public Maps_item(TextView storeName, TextView address, TextView sell, TextView buy) {
+    public Maps_item(TextView storeName, TextView address, TextView sell, TextView buy, Button go) {
         this.storeName = storeName;
         this.address = address;
         this.sell = sell;
         this.buy = buy;
+        this.go = go;
     }
 
     public TextView getStoreName() {
@@ -58,4 +61,6 @@ public class Maps_item {
     public void setBuy(TextView buy) {
         this.buy = buy;
     }
+
+
 }

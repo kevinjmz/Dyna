@@ -24,19 +24,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="left|bottom"
-                android:gravity="top"
+                android:gravity="top|center"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/title_listItem"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@android:color/white"
-                    android:padding="18dp"
-                    android:text="Title"
+                    android:elegantTextHeight="false"
+                    android:enabled="false"
+                    android:focusedByDefault="false"
+                    android:text="Store Name"
                     android:textAlignment="center"
-                    android:textColor="@android:color/black"
-                    android:textSize="16dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -46,8 +47,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="35dp"
-            android:gravity="right"
-            android:orientation="horizontal">
+            android:gravity="center"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_address"
@@ -56,26 +57,6 @@
                 android:layout_weight="1"
                 android:text="Address" />
 
-            <LinearLayout
-                android:layout_width="135dp"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_sell"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Sell:" />
-
-                <TextView
-                    android:id="@+id/tv_buy"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="Buy:" />
-
-            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -86,28 +67,34 @@
             android:orientation="horizontal"
             android:textAlignment="center">
 
-            <Button
-                android:id="@+id/btn_takeToCalc"
-                style="@android:style/Widget.DeviceDefault.Button.Borderless"
+            <TextView
+                android:id="@+id/tv_sell"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:height="55dp"
-                android:drawableLeft="@mipmap/calculator"
-                android:text="SEND TO CALCULATOR"
-                android:textAlignment="center"
-                android:textColor="@android:color/black" />
+                android:text="Sell:"
+                android:textColor="@android:color/holo_orange_dark"
+                android:textSize="23dp" />
+
+            <TextView
+                android:id="@+id/tv_buy"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Buy:"
+                android:textColor="@color/colorPrimary"
+                android:textSize="23dp" />
 
             <Button
                 android:id="@+id/btn_takeToMaps"
-                style="@style/Widget.AppCompat.Button.Borderless"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:height="55dp"
-                android:drawableLeft="@mipmap/map"
-                android:text="SEND TO GOOGLE MAPS"
+                android:drawableLeft="@drawable/ic_directions_black_24dp"
+                android:text="Directions"
                 android:textColor="@android:color/black" />
+
         </LinearLayout>
 
     </LinearLayout>

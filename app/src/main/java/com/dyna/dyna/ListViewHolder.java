@@ -13,7 +13,6 @@ import android.widget.TextView;
  */
 //register link to cardViewItem
 public class ListViewHolder extends RecyclerView.ViewHolder{
-    Button btn1;
     Button btn2;
     ImageView image;
     TextView title;
@@ -24,19 +23,11 @@ public class ListViewHolder extends RecyclerView.ViewHolder{
 
     public ListViewHolder(View itemView) {
         super(itemView);
-        btn1 = (Button) itemView.findViewById(R.id.btn_takeToCalc);
-        btn2 = (Button) itemView.findViewById(R.id.btn_takeToMaps);
+        btn2 = itemView.findViewById(R.id.btn_takeToMaps);
        // image = (ImageView) itemView.findViewById(R.id.image_listItem);
-        title = (TextView) itemView.findViewById(R.id.title_listItem);
-        tv_sell = (TextView) itemView.findViewById(R.id.tv_sell);
-        tv_buy = (TextView) itemView.findViewById(R.id.tv_buy);
-
-        btn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
+        title = itemView.findViewById(R.id.title_listItem);
+        tv_sell = itemView.findViewById(R.id.tv_sell);
+        tv_buy = itemView.findViewById(R.id.tv_buy);
 
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
