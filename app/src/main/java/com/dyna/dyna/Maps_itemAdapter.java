@@ -10,12 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by Kevin on 3/29/2018.
  */
 
-public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> {
+public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> implements Observer {
 
     List<Store> storeList;
     Context context;
@@ -58,5 +60,15 @@ public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> 
     @Override
     public int getItemCount() {
         return storeList.size();
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (o instanceof DatabaseManager) {
+            DatabaseManager databaseManager = (DatabaseManager) o;
+            for(Store S: storeList){
+                ////////////////////////////////////
+            }
+        }
     }
 }

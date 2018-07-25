@@ -9,7 +9,7 @@
         android:id="@+id/btn_nav_item"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="?attr/colorPrimary"
+        android:background="@color/blue_for_nav"
         android:gravity="center"
         android:paddingLeft="32dp"
         android:paddingRight="32dp"

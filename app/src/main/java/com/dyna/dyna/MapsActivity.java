@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
@@ -20,9 +21,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Toast;
 
 import com.firebase.client.Firebase;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -104,14 +107,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == RESULT_OK) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {// in case store changes values of sell or buy
             if (data.getData() != null) {
-                String sellbuy = data.getData().toString();
-                String[] parts = sellbuy.split(" ");
+                String newValue = data.getData().toString();
+                String[] parts = newValue.split(" ");
                 Firebase childRefBuy = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Buy");
                 Firebase childRefSell = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Sell");
-                childRefSell.setValue(parts[0]);
-                childRefBuy.setValue(parts[1]);
+
+                if(parts[1].equals("sell")) {
+                    childRefSell.setValue(parts[0]);
+                }
+                else {
+                    childRefBuy.setValue(parts[0]);
+                }
             }
         }
 
@@ -129,7 +137,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for (Store S : List) {
             //Log.d("Marker Created for: ", S.getName());
             Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
-                    .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.fromResource(R.drawable.pointer_02)));
             S.setMarker(m);
         }
     }
@@ -168,6 +176,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        update(null, null);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
@@ -175,6 +189,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission granted
                     permissionIsGranted = true;
+                    finish();
+                    startActivity(getIntent());
+
+                    Intent i = getBaseContext().getPackageManager()
+                            .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(i);
+
                 } else {
                     //permission denied
                     permissionIsGranted = false;
@@ -187,6 +209,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission granted
                     permissionIsGranted = true;
+                    finish();
+                    startActivity(getIntent());
                 } else {
                     //permission denied
                     permissionIsGranted = false;
@@ -198,6 +222,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void changeSnippet(Store S, String sell, String buy) {
+        Log.d("Developer", "changed to new snippet sell:"+ sell + "  buy:"+buy);
         S.getMarker().setSnippet("Sell $" + sell + "  Buy $" + buy);
     }
 
@@ -312,6 +337,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         list_container.setAdapter(new Maps_itemAdapter(this, storeList));
         list_container.setLayoutManager(layout);
        // layout.scrollToPosition(2);
+        list_container.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                int cardIndex = layout.findLastCompletelyVisibleItemPosition();
+                if(cardIndex!=-1){
+                    storeList.get(cardIndex).getMarker().showInfoWindow();
+                    mMap.animateCamera(CameraUpdateFactory.newLatLng(storeList.get(cardIndex).getMarker().getPosition()), 250, null);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
     }
 
     @Override
@@ -319,9 +360,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         list_container.setAlpha(1);
         for(Store S : storeList) {
             if (marker.getTitle().equals(S.getName())){
-                layout.scrollToPosition(storeList.indexOf(S));
+                layout.scrollToPositionWithOffset(storeList.indexOf(S),100);
             }
         }
         return false;
     }
+
+    public void changeItemAdapter(Store storeChanged, String Sell, String Buy) {
+
+    }
+
 }
