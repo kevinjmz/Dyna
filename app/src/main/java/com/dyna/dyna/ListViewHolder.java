@@ -18,6 +18,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder{
     TextView title;
     TextView tv_sell;
     TextView tv_buy;
+    TextView tv_address;
 
 
 
@@ -28,6 +29,7 @@ public class ListViewHolder extends RecyclerView.ViewHolder{
         title = itemView.findViewById(R.id.title_listItem);
         tv_sell = itemView.findViewById(R.id.tv_sell);
         tv_buy = itemView.findViewById(R.id.tv_buy);
+        tv_address = itemView.findViewById(R.id.tv_address);
 
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override

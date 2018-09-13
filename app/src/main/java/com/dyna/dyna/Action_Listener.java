@@ -29,8 +29,6 @@ public class Action_Listener extends MapsActivity implements Serializable {
              @Override
              public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                  //checks the previous child to see if buy or sell is changed
-                 Log.d("Developer", "a value changed to"+dataSnapshot.getValue().toString());
-                 Log.d("Developer", "s is: "+s);
                  if (s == "Address") {//checks for previous item in database
                      store.setBuy(dataSnapshot.getValue().toString());
                  } else {

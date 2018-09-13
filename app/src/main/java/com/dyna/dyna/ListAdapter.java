@@ -31,8 +31,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListViewHolder> {
         holder.title.setText(storeList.get(position).getName());
         // holder.image.setImageResource(storeList.get(position).getImage());
         //holder.image.setImageResource(R.drawable.sample_store);
-        holder.tv_sell.setText("Sell:  "+storeList.get(position).getSell());
-        holder.tv_buy.setText("Buy:  "+storeList.get(position).getBuy());
+        holder.tv_sell.setText("Sell: "+storeList.get(position).getSell());
+        holder.tv_buy.setText("Buy: "+storeList.get(position).getBuy());
+        holder.tv_address.setText(storeList.get(position).getAddress());
     }
 
     @Override

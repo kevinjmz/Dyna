@@ -38,6 +38,7 @@ public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> 
         holder.storeName.setText(storeList.get(position).getName());
         holder.sell.setText(storeList.get(position).getSell());
         holder.buy.setText(storeList.get(position).getBuy());
+        holder.address.setText(storeList.get(position).getAddress());
 
         holder.go.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,4 +72,6 @@ public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> 
             }
         }
     }
+
+
 }

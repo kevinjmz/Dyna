@@ -3,12 +3,14 @@ package com.dyna.dyna;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
@@ -36,8 +38,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -52,6 +57,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean permissionIsGranted = false;
     private double currentLocation_latitude;
     private double currentLocation_longitude;
+    private String TAG = "Developer";
 
     private ArrayList<Store> storeList;
 
@@ -64,12 +70,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private RecyclerView list_container;
     private LinearLayoutManager layout;
 
+    private Maps_itemAdapter itemAdapter;
+
+    private static Context mContext;
+
     Store cashItH = new Store("Cash it Here", 31.776246, -106.472977, "20.00", "20.00");
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = getApplicationContext();
 
         setUpMap();
         setUpToolBar();
@@ -85,7 +96,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(31.75387, -106.485619)));//focus starting camera to melekPaisano
         mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 12));//adjust zoom on camera
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-        mMap.setPadding(0, 80, 0, 0);  //lower the location button
+        mMap.setPadding(0, 100, 0, 0);  //lower the location button
         UiSettings uiSettings=mMap.getUiSettings();
         uiSettings.setCompassEnabled(false);//remove compass
         uiSettings.setMapToolbarEnabled(false);//remove buttons triggered by markers
@@ -309,6 +320,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (o instanceof DatabaseManager) {
             DatabaseManager databaseManager = (DatabaseManager) o;
             storeList = databaseManager.getStoreList();
+            saveList(storeList);
             addMarkers(storeList);
             setUpList();
          //   Log.d("Developer", "markers added! @Maps/update");
@@ -334,9 +346,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         list_container.setHasFixedSize(true);
         layout = new LinearLayoutManager(getApplicationContext());
         layout.setOrientation(LinearLayoutManager.HORIZONTAL);
-        list_container.setAdapter(new Maps_itemAdapter(this, storeList));
+        itemAdapter = new Maps_itemAdapter(this,storeList);
+        list_container.setAdapter(itemAdapter);
         list_container.setLayoutManager(layout);
-       // layout.scrollToPosition(2);
         list_container.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -353,6 +365,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+
     }
 
     @Override
@@ -366,8 +379,62 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return false;
     }
 
-    public void changeItemAdapter(Store storeChanged, String Sell, String Buy) {
+    public void changeItemAdapter(Store newStore, String newSell, String newBuy) {
+        int index=0;
+        if (storeList == null){
+            storeList = retrieveList();
+        }
+
+        for(Store s: storeList)
+            Log.d(TAG, s.getName() + "buy>> "+s.getBuy()+"sell>> "+s.getSell());
+
+
+        for(Store s : storeList) {
+            if (s.getName().equals(newStore.getName())){//replace s object in the list with the one that has updated value
+                index = storeList.indexOf(s);
+                s.setSell(newSell);
+                s.setBuy(newBuy);
+            }
+        }
+
+        for(Store s: storeList)
+            Log.d(TAG, "AFTER " + "buy>> "+s.getBuy()+"sell>> "+s.getSell());
+
+        if(itemAdapter==null){
+
+            itemAdapter.notifyItemChanged(index);
+        }
+        else{
+            itemAdapter.notifyItemChanged(index);
+        }
 
     }
 
+    public void saveList(ArrayList<Store> list){
+
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+        Gson gson = new Gson();
+        String listAsJson = gson.toJson(list);
+        prefsEditor.putString("StoreList", listAsJson);
+        prefsEditor.apply();
+
+    }
+
+    public ArrayList<Store> retrieveList (){
+
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
+        Gson gson = new Gson();
+        String json = appSharedPrefs.getString("StoreList", null);
+        Type type = new TypeToken<List<Store>>(){}.getType();
+        return gson.fromJson(json, type);
+
+    }
+
+//    @Override
+//    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState
+//        outState.putAll();
+//    }
 }
