@@ -1,15 +1,13 @@
-package com.dyna.dyna;
+package com.dyna.dyna.Utility;
 
-import android.drm.DrmStore;
 import android.util.Log;
 
+import com.dyna.dyna.Activities.MapsActivity;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
-import com.google.android.gms.common.data.DataBufferObserver;
 
 import java.io.Serializable;
-import java.util.Observable;
 
 
 public class Action_Listener extends MapsActivity implements Serializable {

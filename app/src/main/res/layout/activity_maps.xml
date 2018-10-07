@@ -5,6 +5,19 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/sliderContainer">
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/changerContainer">
+    </FrameLayout>
+
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/nvd_act_main"
         android:layout_width="match_parent"
@@ -17,29 +30,13 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:context="com.dyna.dyna.MapsActivity">
+            tools:context="com.dyna.dyna.Activities.MapsActivity">
 
             <include
                 android:id="@+id/app_bar"
                 layout="@layout/toolbar" />
         </fragment>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="bottom"
-            android:orientation="horizontal">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/maps_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:alpha="0"
-                android:clickable="false"
-                android:longClickable="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"/>
-        </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/lst_nav_drawer"

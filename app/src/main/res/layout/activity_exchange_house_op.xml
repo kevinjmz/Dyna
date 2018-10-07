@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.dyna.dyna.ExchangeHouseOp">
+    tools:context="com.dyna.dyna.Activities.ExchangeHouseOp">
 
     <TextView
         android:id="@+id/storeName_TV"

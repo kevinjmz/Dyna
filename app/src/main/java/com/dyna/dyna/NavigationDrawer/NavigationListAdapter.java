@@ -1,4 +1,4 @@
-package com.dyna.dyna;
+package com.dyna.dyna.NavigationDrawer;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -12,16 +12,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 
-
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatButton;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import java.util.ArrayList;
+import com.dyna.dyna.R;
 
 public class NavigationListAdapter extends RecyclerView.Adapter<NavigationListAdapter.ViewHolder> implements Serializable {
     private LayoutInflater inflater;

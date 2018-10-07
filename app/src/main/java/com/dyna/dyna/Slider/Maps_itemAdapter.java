@@ -1,13 +1,16 @@
-package com.dyna.dyna;
+package com.dyna.dyna.Slider;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.dyna.dyna.Utility.DatabaseManager;
+import com.dyna.dyna.R;
+import com.dyna.dyna.Utility.Store;
 
 import java.util.List;
 import java.util.Observable;

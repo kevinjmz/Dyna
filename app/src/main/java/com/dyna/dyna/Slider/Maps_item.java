@@ -1,4 +1,4 @@
-package com.dyna.dyna;
+package com.dyna.dyna.Slider;
 
 import android.widget.Button;
 import android.widget.TextView;

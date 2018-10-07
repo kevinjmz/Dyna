@@ -1,9 +1,12 @@
-package com.dyna.dyna;
+package com.dyna.dyna.ListUtility;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.dyna.dyna.R;
+import com.dyna.dyna.Utility.Store;
 
 import java.util.List;
 

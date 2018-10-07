@@ -1,4 +1,4 @@
-package com.dyna.dyna;
+package com.dyna.dyna.ListUtility;
 
 import android.media.Image;
 import android.support.v7.widget.RecyclerView;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.dyna.dyna.R;
 
 /**
  * Created by Kevin on 10/27/2017.

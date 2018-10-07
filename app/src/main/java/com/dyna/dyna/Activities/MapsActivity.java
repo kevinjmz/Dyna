@@ -1,6 +1,7 @@
-package com.dyna.dyna;
+package com.dyna.dyna.Activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,25 +10,32 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.Toast;
 
+import com.dyna.dyna.Changer2Fragment;
+import com.dyna.dyna.ChangerFragment;
+import com.dyna.dyna.Utility.DatabaseManager;
+import com.dyna.dyna.NavigationDrawer.NavigationListAdapter;
+import com.dyna.dyna.R;
+import com.dyna.dyna.Slider.SliderFragment;
+import com.dyna.dyna.Utility.Store;
 import com.firebase.client.Firebase;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -51,7 +59,7 @@ import java.util.Observer;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer, GoogleMap.OnMarkerClickListener {
 
-    private GoogleMap mMap;
+    public GoogleMap mMap;
     private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
     private static final int MY_PERMISSION_REQUEST_COARSE_LOCATION = 102;
     private boolean permissionIsGranted = false;
@@ -59,7 +67,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double currentLocation_longitude;
     private String TAG = "Developer";
 
-    private ArrayList<Store> storeList;
+    public ArrayList<Store> storeList;
 
     private Toolbar toolbar;
 
@@ -67,14 +75,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Observable databaseObserver;
 
-    private RecyclerView list_container;
-    private LinearLayoutManager layout;
-
-    private Maps_itemAdapter itemAdapter;
-
     private static Context mContext;
 
-    Store cashItH = new Store("Cash it Here", 31.776246, -106.472977, "20.00", "20.00");
+    private boolean isAttached = false;
+
+    public static Store storeToChange;
 
 
     @Override
@@ -87,7 +92,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         databaseObserver = DatabaseManager.getInstance();
         databaseObserver.addObserver(this);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -97,7 +106,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 12));//adjust zoom on camera
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
         mMap.setPadding(0, 100, 0, 0);  //lower the location button
-        UiSettings uiSettings=mMap.getUiSettings();
+        UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setCompassEnabled(false);//remove compass
         uiSettings.setMapToolbarEnabled(false);//remove buttons triggered by markers
 
@@ -105,43 +114,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                list_container.setAlpha(0);
+                removeSlider();
+                isAttached = false;
             }
         });
 
         if (!permissionIsGranted) {
             requestLocationUpdates();
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1 && resultCode == RESULT_OK) {// in case store changes values of sell or buy
-            if (data.getData() != null) {
-                String newValue = data.getData().toString();
-                String[] parts = newValue.split(" ");
-                Firebase childRefBuy = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Buy");
-                Firebase childRefSell = rootRef.child("/" + String.valueOf(cashItH.getName())).child("Sell");
-
-                if(parts[1].equals("sell")) {
-                    childRefSell.setValue(parts[0]);
-                }
-                else {
-                    childRefBuy.setValue(parts[0]);
-                }
-            }
-        }
 
     }
-
-/*
-        private void sendToLogin() {
-            Intent intent = new Intent(MapsActivity.this, Login.class);
-            //startActivity(intent);
-            MapsActivity.this.startActivity(intent);
-        }*/
 
     //Adds the markers to the map according to the Stores stored at the List given
     private void addMarkers(List<Store> List) {
@@ -183,13 +165,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //    Log.d("Developer","User's Latitude: "+currentLocation_latitude+" Longitude:  "+currentLocation_longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation_latitude, currentLocation_longitude)));
 
-    }
 
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        update(null, null);
     }
 
     @Override
@@ -200,19 +176,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission granted
                     permissionIsGranted = true;
-                    finish();
-                    startActivity(getIntent());
-
-                    Intent i = getBaseContext().getPackageManager()
-                            .getLaunchIntentForPackage( getBaseContext().getPackageName() );
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(i);
-
                 } else {
                     //permission denied
                     permissionIsGranted = false;
                     Toast.makeText(getApplicationContext(), "This app requires location permission to be granted, " +
-                            "please fix  it on Settings/Applications", Toast.LENGTH_SHORT).show();
+                            "please fix  it at Settings/Applications", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
@@ -220,13 +188,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission granted
                     permissionIsGranted = true;
-                    finish();
-                    startActivity(getIntent());
                 } else {
                     //permission denied
                     permissionIsGranted = false;
                     Toast.makeText(getApplicationContext(), "This app requires location permission to be granted, " +
-                            "please fix  it on Settings/Applications", Toast.LENGTH_SHORT).show();
+                            "please fix  it at Settings/Applications", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -272,22 +238,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(new Intent(this, ListActivity.class));
                 break;
             case 2:
-                startExchangeHouseOP(cashItH);
+                addChanger();
                 break;
             case 3:
                 break;
         }
-    }
-
-    //prepare intent with information about the store to be changed before calling activity
-    private void startExchangeHouseOP(Store store) {
-        Intent i = new Intent(MapsActivity.this, ExchangeHouseOp.class);
-        Bundle e = new Bundle();
-        e.putSerializable("STORENAME", store.getName());
-        e.putSerializable("OLDBUY", store.getBuy());
-        e.putSerializable("OLDSELL", store.getSell());
-        i.putExtras(e);
-        startActivityForResult(i, 1);//intent, request code
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -322,7 +277,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             storeList = databaseManager.getStoreList();
             saveList(storeList);
             addMarkers(storeList);
-            setUpList();
+           // setUpList();
          //   Log.d("Developer", "markers added! @Maps/update");
         }
     }
@@ -331,6 +286,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onDestroy() {
         super.onDestroy();
         databaseObserver.deleteObserver(this);
+        saveList(storeList);
     }
 
     public void setUpMap(){
@@ -341,40 +297,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Firebase.setAndroidContext(this);
     }
 
-    public void setUpList(){
-        list_container = findViewById(R.id.maps_list);
-        list_container.setHasFixedSize(true);
-        layout = new LinearLayoutManager(getApplicationContext());
-        layout.setOrientation(LinearLayoutManager.HORIZONTAL);
-        itemAdapter = new Maps_itemAdapter(this,storeList);
-        list_container.setAdapter(itemAdapter);
-        list_container.setLayoutManager(layout);
-        list_container.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                int cardIndex = layout.findLastCompletelyVisibleItemPosition();
-                if(cardIndex!=-1){
-                    storeList.get(cardIndex).getMarker().showInfoWindow();
-                    mMap.animateCamera(CameraUpdateFactory.newLatLng(storeList.get(cardIndex).getMarker().getPosition()), 250, null);
-                }
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-            }
-        });
-
-    }
-
     @Override
     public boolean onMarkerClick(Marker marker) {
-        list_container.setAlpha(1);
-        for(Store S : storeList) {
-            if (marker.getTitle().equals(S.getName())){
-                layout.scrollToPositionWithOffset(storeList.indexOf(S),100);
-            }
+        if(isAttached==false) {
+            addSlider();
+            isAttached = true;
+        }
+        else {
+            scrollToMarkerPosition(marker);
         }
         return false;
     }
@@ -388,7 +318,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         for(Store s: storeList)
             Log.d(TAG, s.getName() + "buy>> "+s.getBuy()+"sell>> "+s.getSell());
 
-
         for(Store s : storeList) {
             if (s.getName().equals(newStore.getName())){//replace s object in the list with the one that has updated value
                 index = storeList.indexOf(s);
@@ -399,14 +328,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         for(Store s: storeList)
             Log.d(TAG, "AFTER " + "buy>> "+s.getBuy()+"sell>> "+s.getSell());
-
-        if(itemAdapter==null){
-
-            itemAdapter.notifyItemChanged(index);
-        }
-        else{
-            itemAdapter.notifyItemChanged(index);
-        }
 
     }
 
@@ -431,10 +352,65 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState
-//        outState.putAll();
-//    }
+
+
+    private void addSlider (){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        SliderFragment sliderFragment = new SliderFragment();
+        fragmentTransaction.replace(R.id.map,sliderFragment,"slider");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+
+    private void removeSlider(){
+        Fragment fm = getSupportFragmentManager().findFragmentByTag("slider");
+        if(fm != null)
+            getSupportFragmentManager().beginTransaction().remove(fm).commit();
+    }
+
+    private void scrollToMarkerPosition(Marker marker){
+        FragmentManager fm = getSupportFragmentManager();
+        SliderFragment fragment = (SliderFragment) fm.findFragmentByTag("slider");
+        if (fragment!=null){
+            fragment.scrollToMarkerPosition(marker);
+        }
+    }
+
+    private void addChanger(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        ChangerFragment changerFragment = new ChangerFragment();
+        fragmentTransaction.replace(R.id.changerContainer, changerFragment ,"changer");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    public void swapToChanger2(){
+        // Create new fragment and transaction
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.popBackStack();
+        Fragment newFragment = new Changer2Fragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+
+        transaction.replace(R.id.changerContainer, newFragment, "changer2");
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    public void changeStoreValues(Store oldStore, String newSell, String newBuy){
+
+            Firebase childRefBuy = rootRef.child("/" + String.valueOf(oldStore.getName())).child("Buy");
+            Firebase childRefSell = rootRef.child("/" + String.valueOf(oldStore.getName())).child("Sell");
+
+            if(newSell != null){
+                childRefSell.setValue(newSell);
+            }
+            if (newBuy!= null) {
+                childRefBuy.setValue(newBuy);
+            }
+    }
+
 }

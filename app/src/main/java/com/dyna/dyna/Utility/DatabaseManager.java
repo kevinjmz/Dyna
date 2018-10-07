@@ -1,6 +1,5 @@
-package com.dyna.dyna;
+package com.dyna.dyna.Utility;
 
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.firebase.client.Firebase;

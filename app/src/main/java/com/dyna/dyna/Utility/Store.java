@@ -1,4 +1,4 @@
-package com.dyna.dyna;
+package com.dyna.dyna.Utility;
 
 import com.google.android.gms.maps.model.Marker;
 
@@ -14,6 +14,7 @@ public class Store implements Serializable {
     //  private String city;
     private Marker marker = null;
     //  private double distanceToUser;
+    private String Password;
 
 
     public Store(String Name, double Latitude, double Longitude, String Sell, String Buy) {
@@ -55,6 +56,8 @@ public class Store implements Serializable {
         return Address;
     }
 
+    public String getPassword() {return Password;}
+
 
     public void setName(String new_Name) {
         Name = new_Name;
@@ -75,5 +78,7 @@ public class Store implements Serializable {
     public void setAddress(String address) {
         Address = address;
     }
+
+    public void setPassword(String password){ Password = password;}
 
 }
