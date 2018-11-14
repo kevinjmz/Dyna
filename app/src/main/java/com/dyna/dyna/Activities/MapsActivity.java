@@ -275,6 +275,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             storeList = databaseManager.getStoreList();
             saveList(storeList);
             addMarkers(storeList);
+            computeDistancesToCities();
            // setUpList();
          //   Log.d("Developer", "markers added! @Maps/update");
         }
@@ -406,5 +407,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (newBuy != null) {
                 childRefBuy.setValue(newBuy);
             }
+    }
+
+    public void computeDistancesToCities(){
+        Location usr_loc = new Location("");
+        usr_loc.setLatitude(currentLocation_latitude);
+        usr_loc.setLongitude(currentLocation_longitude);
+
+        for(Store s : storeList){
+            float pk = (float) (180.f/Math.PI);
+
+            float a1 = (float)currentLocation_latitude / pk;
+            float a2 = (float)currentLocation_longitude / pk;
+            float b1 = (float)s.getLatitude() / pk;
+            float b2 = (float)s.getLongitude() / pk;
+
+            double t1 = Math.cos(a1) * Math.cos(a2) * Math.cos(b1) * Math.cos(b2);
+            double t2 = Math.cos(a1) * Math.sin(a2) * Math.cos(b1) * Math.sin(b2);
+            double t3 = Math.sin(a1) * Math.sin(b1);
+            double tt = Math.acos(t1 + t2 + t3);
+
+            s.setDistanceToUserInMiles((float)((6366000 * tt)*0.000621371192));
+            s.setGetDistanceToUserInMeters((float)(6366000 * tt));
+            Log.d(TAG, "distance to store "+s.getName()+" is "+s.getDistanceToUser());
+        }
     }
 }

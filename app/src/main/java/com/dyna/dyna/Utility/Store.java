@@ -11,9 +11,10 @@ public class Store implements Serializable {
     private String Sell;
     private String Buy;
     private String Address;
-    //  private String city;
+    private String city;
     private Marker marker = null;
-    //  private double distanceToUser;
+    private float distanceToUserInMiles;
+    private float distanceToUserInMeters;
     private String Password;
 
 
@@ -58,6 +59,12 @@ public class Store implements Serializable {
 
     public String getPassword() {return Password;}
 
+    public String getCity(){return city;}
+
+    public float getDistanceToUser(){return distanceToUserInMiles;}
+
+    public float getGetDistanceToUserInMeters() {return distanceToUserInMeters;}
+
 
     public void setName(String new_Name) {
         Name = new_Name;
@@ -79,6 +86,12 @@ public class Store implements Serializable {
         Address = address;
     }
 
-    public void setPassword(String password){ Password = password;}
+    public void setPassword(String password){ Password = password; }
+
+    public void setCity(String City){ city = City; }
+
+    public void setDistanceToUserInMiles(float DistanceToUser){ distanceToUserInMiles = DistanceToUser; }
+
+    public void setGetDistanceToUserInMeters(float DistanceToUser){distanceToUserInMeters = DistanceToUser; }
 
 }
