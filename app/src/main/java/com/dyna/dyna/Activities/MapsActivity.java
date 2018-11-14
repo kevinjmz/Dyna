@@ -164,8 +164,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //    Log.d("Developer","User's Latitude: "+currentLocation_latitude+" Longitude:  "+currentLocation_longitude);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(currentLocation_latitude, currentLocation_longitude)));
-
-
     }
 
     @Override
@@ -408,9 +406,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if(newSell != null){
                 childRefSell.setValue(newSell);
             }
-            if (newBuy!= null) {
+            if (newBuy != null) {
                 childRefBuy.setValue(newBuy);
             }
     }
-
 }
