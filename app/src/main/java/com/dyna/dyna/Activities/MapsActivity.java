@@ -350,8 +350,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-
-
     private void addSlider (){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -360,7 +358,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
 
     private void removeSlider(){
         Fragment fm = getSupportFragmentManager().findFragmentByTag("slider");
