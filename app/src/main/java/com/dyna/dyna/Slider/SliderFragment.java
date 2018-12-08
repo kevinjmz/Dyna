@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.dyna.dyna.Activities.MapsActivity;
 import com.dyna.dyna.R;
 import com.dyna.dyna.Utility.Store;
+import com.dyna.dyna.showDetailsInterface;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
@@ -26,6 +27,7 @@ import java.util.List;
 public class SliderFragment extends android.support.v4.app.Fragment {
     LinearLayoutManager layoutManager;
     ArrayList<Store> storeList;
+    public showDetailsInterface listener = null;
 
     @Nullable
     @Override
@@ -39,7 +41,7 @@ public class SliderFragment extends android.support.v4.app.Fragment {
 
         final MapsActivity mapsActivity = (MapsActivity)getActivity();
         storeList = mapsActivity.storeList;
-        Maps_itemAdapter itemAdapter = new Maps_itemAdapter(getActivity().getApplicationContext(),storeList);
+        Maps_itemAdapter itemAdapter = new Maps_itemAdapter(getActivity().getApplicationContext(), storeList, listener);
         slider_container.setAdapter(itemAdapter);
         slider_container.setLayoutManager(layoutManager);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -67,15 +69,6 @@ public class SliderFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
-    public ArrayList<Store> retrieveList (){
-
-        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-        Gson gson = new Gson();
-        String json = appSharedPrefs.getString("StoreList", null);
-        Type type = new TypeToken<List<Store>>(){}.getType();
-        return gson.fromJson(json, type);
-
-    }
 
     public void scrollToMarkerPosition(Marker marker){
         for(Store S : storeList) {

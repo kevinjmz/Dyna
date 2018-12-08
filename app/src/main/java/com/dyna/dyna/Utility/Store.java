@@ -94,4 +94,9 @@ public class Store implements Serializable {
 
     public void setGetDistanceToUserInMeters(float DistanceToUser){distanceToUserInMeters = DistanceToUser; }
 
+    public float shortFloat(float f){
+        float ff= (float) (Math.round(f * 100.0)/ 100.0);
+        return ff;
+    }
+
 }

@@ -24,17 +24,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.transition.Fade;
+import android.transition.TransitionInflater;
+import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dyna.dyna.Changer2Fragment;
 import com.dyna.dyna.ChangerFragment;
+import com.dyna.dyna.DetailsFragment;
 import com.dyna.dyna.Utility.DatabaseManager;
 import com.dyna.dyna.NavigationDrawer.NavigationListAdapter;
 import com.dyna.dyna.R;
 import com.dyna.dyna.Slider.SliderFragment;
 import com.dyna.dyna.Utility.Store;
+import com.dyna.dyna.showDetailsInterface;
 import com.firebase.client.Firebase;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -57,7 +63,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer, GoogleMap.OnMarkerClickListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer, GoogleMap.OnMarkerClickListener, showDetailsInterface, GoogleMap.OnInfoWindowClickListener {
 
     public GoogleMap mMap;
     private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
@@ -118,6 +124,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 isAttached = false;
             }
         });
+
+        mMap.setOnInfoWindowClickListener(this);
+
 
         if (!permissionIsGranted) {
             requestLocationUpdates();
@@ -355,6 +364,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         SliderFragment sliderFragment = new SliderFragment();
+        sliderFragment.listener = this;
         fragmentTransaction.replace(R.id.map,sliderFragment,"slider");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
@@ -378,7 +388,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ChangerFragment changerFragment = new ChangerFragment();
-        fragmentTransaction.replace(R.id.changerContainer, changerFragment ,"changer");
+        fragmentTransaction.replace(R.id.map, changerFragment ,"changer");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
@@ -394,6 +404,53 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         transaction.replace(R.id.changerContainer, newFragment, "changer2");
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    @Override
+    public void showDetails(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(R.xml.bottom_to_top_anim, 0,R.xml.top_to_bottom_anim,0);
+        DetailsFragment detailsFragment = new DetailsFragment();
+        fragmentTransaction.replace(R.id.map, detailsFragment ,"details");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public void performTransaction() {
+        if (isDestroyed())
+        {
+            return;
+        }
+        FragmentManager mFragmentManager = getSupportFragmentManager();
+        SliderFragment sliderFragment = new SliderFragment();
+        DetailsFragment nextFragment = new DetailsFragment();
+
+        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+
+        // 1. Exit for Previous Fragment
+        Fade exitFade = new Fade();
+        exitFade.setDuration(300);
+        sliderFragment.setExitTransition(exitFade);
+
+        // 2. Shared Elements Transition
+        TransitionSet enterTransitionSet = new TransitionSet();
+        enterTransitionSet.addTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.move));
+        enterTransitionSet.setDuration(1000);
+        enterTransitionSet.setStartDelay(300);
+        nextFragment.setSharedElementEnterTransition(enterTransitionSet);
+
+        // 3. Enter Transition for New Fragment
+        Fade enterFade = new Fade();
+        enterFade.setStartDelay(1000 + 300);
+        enterFade.setDuration(300);
+        nextFragment.setEnterTransition(enterFade);
+
+        TextView store_name = findViewById(R.id.item_store_name);
+        fragmentTransaction.addSharedElement(store_name, store_name.getTransitionName());
+        fragmentTransaction.replace(R.id.map, nextFragment);
+        fragmentTransaction.commitAllowingStateLoss();
+        fragmentTransaction.addToBackStack(null);
     }
 
     public void changeStoreValues(Store oldStore, String newSell, String newBuy){
@@ -432,4 +489,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.d(TAG, "distance to store "+s.getName()+" is "+s.getDistanceToUser());
         }
     }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        showDetails();
+    }
+
 }

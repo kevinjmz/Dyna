@@ -18,16 +18,18 @@ public class Maps_itemViewHolder extends RecyclerView.ViewHolder {
     TextView address;
     TextView sell;
     TextView buy;
+    TextView distance;
     Button go;
 
     public Maps_itemViewHolder(final View itemView) {
         super(itemView);
 
-        storeName = itemView.findViewById(R.id.storeName);
+        storeName = itemView.findViewById(R.id.item_store_name);
         address = itemView.findViewById(R.id.address);
         sell = itemView.findViewById(R.id.sell);
         buy = itemView.findViewById(R.id.buy);
         go = itemView.findViewById(R.id.go);
+        distance = itemView.findViewById(R.id.distance);
 
     }
 }

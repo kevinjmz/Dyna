@@ -12,12 +12,13 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@android:color/white"
+        android:alpha="0.70"
         app:srcCompat="@drawable/t1_01" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/store_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"></android.support.v7.widget.RecyclerView>

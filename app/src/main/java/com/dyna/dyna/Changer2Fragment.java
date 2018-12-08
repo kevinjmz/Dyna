@@ -38,7 +38,7 @@ public class Changer2Fragment extends Fragment {
     private EditText et_newBuy;
     private Button btn_submit;
 
-    ArrayList <Store> storeList;
+    ArrayList<Store> storeList;
     MapsActivity mapsActivity;
 
     @Override
@@ -50,7 +50,7 @@ public class Changer2Fragment extends Fragment {
         btn_submit = getView().findViewById(R.id.btn_change);
 
 
-        mapsActivity = (MapsActivity)getActivity();
+        mapsActivity = (MapsActivity) getActivity();
         storeList = mapsActivity.storeList;
 
         final Store storeToChange = mapsActivity.storeToChange;
@@ -65,14 +65,14 @@ public class Changer2Fragment extends Fragment {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 String newSell = et_newSell.getText().toString();
-                                String newBuy =  et_newBuy.getText().toString();
-                                if (newSell.equals("")){
-                                    newSell=null;
+                                String newBuy = et_newBuy.getText().toString();
+                                if (newSell.equals("")) {
+                                    newSell = null;
                                 }
-                                if (newBuy.equals("")){
-                                    newBuy=null;
+                                if (newBuy.equals("")) {
+                                    newBuy = null;
                                 }
-                                mapsActivity.changeStoreValues(storeToChange, newSell , newBuy);
+                                mapsActivity.changeStoreValues(storeToChange, newSell, newBuy);
                                 FragmentManager fragmentManager = mapsActivity.getSupportFragmentManager();
                                 fragmentManager.popBackStack();
                             }
@@ -105,6 +105,16 @@ public class Changer2Fragment extends Fragment {
         });
 
 
+        getView().setOnKeyListener( new View.OnKeyListener() {
+            @Override
+            public boolean onKey (View v,int keyCode, KeyEvent event )
+            {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    return true;
+                }
+                return false;
+            }
+        } );
     }
 
     @Nullable

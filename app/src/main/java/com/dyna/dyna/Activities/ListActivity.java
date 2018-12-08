@@ -56,7 +56,7 @@ public class ListActivity extends AppCompatActivity {
         list_container.setHasFixedSize(true);
         LinearLayoutManager layout = new LinearLayoutManager(getApplicationContext());
         layout.setOrientation(LinearLayoutManager.VERTICAL);
-        list_container.setAdapter(new ListAdapter(storeList));
+        list_container.setAdapter(new ListAdapter(this , storeList));
         list_container.setLayoutManager(layout);
     }
 }

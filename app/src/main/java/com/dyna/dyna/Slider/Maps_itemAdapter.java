@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.dyna.dyna.Utility.DatabaseManager;
 import com.dyna.dyna.R;
 import com.dyna.dyna.Utility.Store;
+import com.dyna.dyna.showDetailsInterface;
 
 import java.util.List;
 import java.util.Observable;
@@ -24,15 +25,18 @@ public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> 
 
     List<Store> storeList;
     Context context;
+    showDetailsInterface listener;
 
-    public Maps_itemAdapter(Context context, List<Store> storeList) {
+
+    public Maps_itemAdapter(Context context, List<Store> storeList, showDetailsInterface listener) {
         this.storeList = storeList;
         this.context = context;
+        this.listener = listener;
     }
 
     @Override
     public Maps_itemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.description_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.slider_item, parent, false);
         return new Maps_itemViewHolder(view);
     }
 
@@ -42,6 +46,21 @@ public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> 
         holder.sell.setText(storeList.get(position).getSell());
         holder.buy.setText(storeList.get(position).getBuy());
         holder.address.setText(storeList.get(position).getAddress());
+        holder.distance.setText(String.valueOf( storeList.get(position).shortFloat(storeList.get(position).getDistanceToUser()) ) + "mi");
+
+        holder.storeName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.showDetails();
+            }
+        });
+
+        holder.address.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.performTransaction();
+            }
+        });
 
         holder.go.setOnClickListener(new View.OnClickListener() {
             @Override

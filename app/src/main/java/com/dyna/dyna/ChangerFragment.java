@@ -73,6 +73,22 @@ public class ChangerFragment extends Fragment {
                 return false;
             }
         });
+
+        getView().setOnKeyListener( new View.OnKeyListener()
+        {
+            @Override
+            public boolean onKey( View v, int keyCode, KeyEvent event )
+            {
+                if( keyCode == KeyEvent.KEYCODE_BACK )
+                {
+                    return true;
+                }
+                return false;
+            }
+        } );
+
+
+
     }
 
     @Nullable
