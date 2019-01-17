@@ -11,7 +11,7 @@ public class Store implements Serializable {
     private String Sell;
     private String Buy;
     private String Address;
-    private String city;
+    private String City;
     private Marker marker = null;
     private float distanceToUserInMiles;
     private float distanceToUserInMeters;
@@ -59,7 +59,7 @@ public class Store implements Serializable {
 
     public String getPassword() {return Password;}
 
-    public String getCity(){return city;}
+    public String getCity(){return City;}
 
     public float getDistanceToUser(){return distanceToUserInMiles;}
 
@@ -88,7 +88,7 @@ public class Store implements Serializable {
 
     public void setPassword(String password){ Password = password; }
 
-    public void setCity(String City){ city = City; }
+    public void setCity(String City){ City = City; }
 
     public void setDistanceToUserInMiles(float DistanceToUser){ distanceToUserInMiles = DistanceToUser; }
 

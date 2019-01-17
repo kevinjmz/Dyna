@@ -23,10 +23,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.transition.Fade;
-import android.transition.TransitionInflater;
-import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -56,6 +52,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +60,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer, GoogleMap.OnMarkerClickListener, showDetailsInterface, GoogleMap.OnInfoWindowClickListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer, GoogleMap.OnMarkerClickListener, showDetailsInterface {
 
     public GoogleMap mMap;
     private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
@@ -81,7 +78,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Observable databaseObserver;
 
-    private static Context mContext;
+    private Context mContext;
 
     private boolean isAttached = false;
 
@@ -125,9 +122,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        mMap.setOnInfoWindowClickListener(this);
-
-
         if (!permissionIsGranted) {
             requestLocationUpdates();
         }
@@ -138,10 +132,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void addMarkers(List<Store> List) {
         for (Store S : List) {
             //Log.d("Marker Created for: ", S.getName());
-            Marker m = mMap.addMarker(new MarkerOptions().position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
-                    .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy()).icon(BitmapDescriptorFactory.fromResource(R.drawable.pointer_02)));
-            S.setMarker(m);
+            if(S.getCity().equals("El Paso")) {
+                Marker m = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
+                        .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.pointer_02)));
+                S.setMarker(m);
+            }
+            else{
+
+                Marker m = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
+                        .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.pointer_blue_03)));
+                S.setMarker(m);
+            }
         }
+        findNearestToMe();
     }
 
     public void requestLocationUpdates() {
@@ -154,21 +161,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             return;
         }
-        mMap.setMyLocationEnabled(true);
-        try {
-            LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Location myLocation = null;
-            if (lm != null) {
-                myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        else{
+            mMap.setMyLocationEnabled(true);
+            try {
+                LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                Location myLocation = null;
+                if (lm != null) {
+                    myLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                }
+                if (myLocation != null) {
+                    currentLocation_latitude = myLocation.getLatitude();
+                }
+                if (myLocation != null) {
+                    currentLocation_longitude = myLocation.getLongitude();
+                }
+            } catch (NullPointerException e) {
+                Toast.makeText(this, "Make sure you have your location enabled on your device! ", Toast.LENGTH_LONG).show();
             }
-            if (myLocation != null) {
-                currentLocation_latitude = myLocation.getLatitude();
-            }
-            if (myLocation != null) {
-                currentLocation_longitude = myLocation.getLongitude();
-            }
-        } catch (NullPointerException e) {
-            Toast.makeText(this, "Make sure you have your location enabled on your device! ", Toast.LENGTH_LONG).show();
         }
 
         //    Log.d("Developer","User's Latitude: "+currentLocation_latitude+" Longitude:  "+currentLocation_longitude);
@@ -340,14 +349,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void saveList(ArrayList<Store> list){
-
-        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-        SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
-        Gson gson = new Gson();
-        String listAsJson = gson.toJson(list);
-        prefsEditor.putString("StoreList", listAsJson);
-        prefsEditor.apply();
-
+            SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+            SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
+            Gson gson = new Gson();
+            String listAsJson = gson.toJson(list);
+            prefsEditor.putString("StoreList", listAsJson);
+            prefsEditor.apply();
     }
 
     public ArrayList<Store> retrieveList (){
@@ -407,50 +414,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void showDetails(){
+    public void showDetails(String store){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(R.xml.bottom_to_top_anim, 0,R.xml.top_to_bottom_anim,0);
         DetailsFragment detailsFragment = new DetailsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("key",store);
+        detailsFragment.setArguments(bundle);
         fragmentTransaction.replace(R.id.map, detailsFragment ,"details");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
 
     @Override
-    public void performTransaction() {
-        if (isDestroyed())
-        {
-            return;
-        }
-        FragmentManager mFragmentManager = getSupportFragmentManager();
-        SliderFragment sliderFragment = new SliderFragment();
-        DetailsFragment nextFragment = new DetailsFragment();
-
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-
-        // 1. Exit for Previous Fragment
-        Fade exitFade = new Fade();
-        exitFade.setDuration(300);
-        sliderFragment.setExitTransition(exitFade);
-
-        // 2. Shared Elements Transition
-        TransitionSet enterTransitionSet = new TransitionSet();
-        enterTransitionSet.addTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.move));
-        enterTransitionSet.setDuration(1000);
-        enterTransitionSet.setStartDelay(300);
-        nextFragment.setSharedElementEnterTransition(enterTransitionSet);
-
-        // 3. Enter Transition for New Fragment
-        Fade enterFade = new Fade();
-        enterFade.setStartDelay(1000 + 300);
-        enterFade.setDuration(300);
-        nextFragment.setEnterTransition(enterFade);
-
-        TextView store_name = findViewById(R.id.item_store_name);
-        fragmentTransaction.addSharedElement(store_name, store_name.getTransitionName());
-        fragmentTransaction.replace(R.id.map, nextFragment);
-        fragmentTransaction.commitAllowingStateLoss();
-        fragmentTransaction.addToBackStack(null);
+    public void hideDetails() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.popBackStack();
     }
 
     public void changeStoreValues(Store oldStore, String newSell, String newBuy){
@@ -464,6 +443,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (newBuy != null) {
                 childRefBuy.setValue(newBuy);
             }
+    }
+
+    private Store findNearestToMe(){
+        float nearest = Float.MAX_VALUE;
+        Store nearestStore = null;
+        for (Store s: storeList){
+            if (s.getDistanceToUser() < nearest){
+                nearest = s.getDistanceToUser();
+                nearestStore = s;
+            }
+        }
+        Log.d(TAG, "Nearest store to me is: " + nearestStore.getName() );
+        return nearestStore;
     }
 
     public void computeDistancesToCities(){
@@ -488,11 +480,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             s.setGetDistanceToUserInMeters((float)(6366000 * tt));
             Log.d(TAG, "distance to store "+s.getName()+" is "+s.getDistanceToUser());
         }
-    }
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        showDetails();
     }
 
 }
