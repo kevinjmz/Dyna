@@ -97,6 +97,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         databaseObserver.addObserver(this);
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -132,14 +133,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void addMarkers(List<Store> List) {
         for (Store S : List) {
             //Log.d("Marker Created for: ", S.getName());
-            if(S.getCity().equals("El Paso")) {
+            if (S.getCity().equals("El Paso")) {
                 Marker m = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
                         .snippet("Sell $" + S.getSell() + "    Buy $" + S.getBuy())
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.pointer_02)));
                 S.setMarker(m);
-            }
-            else{
+            } else {
 
                 Marker m = mMap.addMarker(new MarkerOptions()
                         .position(new LatLng(S.getLatitude(), S.getLongitude())).title(S.getName())
@@ -148,7 +148,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 S.setMarker(m);
             }
         }
-        findNearestToMe();
     }
 
     public void requestLocationUpdates() {
@@ -160,8 +159,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_FINE_LOCATION);
             }
             return;
-        }
-        else{
+        } else {
             mMap.setMyLocationEnabled(true);
             try {
                 LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -192,6 +190,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission granted
                     permissionIsGranted = true;
+                    if (ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        mMap.setMyLocationEnabled(true);
+                    }
                 } else {
                     //permission denied
                     permissionIsGranted = false;
@@ -204,6 +206,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission granted
                     permissionIsGranted = true;
+                    if (ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        mMap.setMyLocationEnabled(true);
+                    }
                 } else {
                     //permission denied
                     permissionIsGranted = false;
@@ -445,10 +451,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
     }
 
-    private Store findNearestToMe(){
+    public Store findNearestToMe(){
         float nearest = Float.MAX_VALUE;
         Store nearestStore = null;
         for (Store s: storeList){
+            Log.d(TAG, "Store: "+s.getName()+"  distance: "+s.getDistanceToUser());
             if (s.getDistanceToUser() < nearest){
                 nearest = s.getDistanceToUser();
                 nearestStore = s;
@@ -478,8 +485,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             s.setDistanceToUserInMiles((float)((6366000 * tt)*0.000621371192));
             s.setGetDistanceToUserInMeters((float)(6366000 * tt));
-            Log.d(TAG, "distance to store "+s.getName()+" is "+s.getDistanceToUser());
         }
+        findNearestToMe();
     }
 
 }

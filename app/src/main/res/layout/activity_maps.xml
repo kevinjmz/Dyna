@@ -24,6 +24,12 @@
         android:id="@+id/detailsContainer">
     </FrameLayout>
 
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/utilBtnsContainer">
+    </FrameLayout>
+
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/nvd_act_main"
         android:layout_width="match_parent"
