@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -69,6 +70,13 @@ public class SliderFragment extends android.support.v4.app.Fragment {
         return v;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        MapsActivity mapsActivity = (MapsActivity) getActivity();
+        Marker markerClicked  =  mapsActivity.markerClicked;
+        scrollToMarkerPosition(markerClicked);
+    }
 
     public void scrollToMarkerPosition(Marker marker){
         for(Store S : storeList) {

@@ -36,6 +36,7 @@
         <activity
             android:name=".Activities.MapsActivity"
             android:label="@string/title_activity_maps"
+            android:launchMode="singleInstance"
             android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
         <activity android:name=".Activities.ListActivity"></activity>

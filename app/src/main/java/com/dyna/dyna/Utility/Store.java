@@ -12,7 +12,7 @@ public class Store implements Serializable {
     private String Buy;
     private String Address;
     private String City;
-    private Marker marker = null;
+    private transient Marker marker = null;  //TODO need to check if transient causes any problems with anything, added it because it avoids crashing@onSaveInstanceState/MapsActivity
     private float distanceToUserInMiles;
     private float distanceToUserInMeters;
     private String Password;

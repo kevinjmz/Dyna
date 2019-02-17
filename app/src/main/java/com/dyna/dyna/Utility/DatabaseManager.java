@@ -19,7 +19,7 @@ import java.util.Observable;
 
      private static DatabaseManager INSTANCE = null;
 
-     private DatabaseManager(){
+     public DatabaseManager(){
          createStores();
      }
 

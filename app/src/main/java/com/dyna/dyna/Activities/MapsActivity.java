@@ -23,6 +23,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ import com.dyna.dyna.NavigationDrawer.NavigationListAdapter;
 import com.dyna.dyna.R;
 import com.dyna.dyna.Slider.SliderFragment;
 import com.dyna.dyna.Utility.Store;
+import com.dyna.dyna.UtilityButtonsFragment;
 import com.dyna.dyna.showDetailsInterface;
 import com.firebase.client.Firebase;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -63,6 +65,7 @@ import java.util.Observer;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationListAdapter.OnItemClickListener, Serializable, Observer, GoogleMap.OnMarkerClickListener, showDetailsInterface {
 
     public GoogleMap mMap;
+    public Marker markerClicked;
     private static final int MY_PERMISSION_REQUEST_FINE_LOCATION = 101;
     private static final int MY_PERMISSION_REQUEST_COARSE_LOCATION = 102;
     private boolean permissionIsGranted = false;
@@ -78,7 +81,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Observable databaseObserver;
 
-    private Context mContext;
 
     private boolean isAttached = false;
 
@@ -88,7 +90,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mContext = getApplicationContext();
 
         setUpMap();
         setUpToolBar();
@@ -101,6 +102,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume");
     }
 
     @Override
@@ -113,6 +115,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setCompassEnabled(false);//remove compass
         uiSettings.setMapToolbarEnabled(false);//remove buttons triggered by markers
+        addUtilityButtons();
 
         mMap.setOnMarkerClickListener(this);
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -127,6 +130,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             requestLocationUpdates();
         }
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "onSaveInstanceState: ");
+        Gson gson = new Gson();
+        String listAsJson = gson.toJson(storeList);
+        outState.putString("StoreList", listAsJson);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Log.d(TAG, "onRestoreInstanceState: ");
+        Gson gson = new Gson();
+        String json = savedInstanceState.getString("StoreList");
+        Type type = new TypeToken<List<Store>>(){}.getType();
+        storeList = gson.fromJson(json, type);
     }
 
     //Adds the markers to the map according to the Stores stored at the List given
@@ -297,7 +320,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (o instanceof DatabaseManager) {
             DatabaseManager databaseManager = (DatabaseManager) o;
             storeList = databaseManager.getStoreList();
-            saveList(storeList);
+         //   saveList(storeList);
             addMarkers(storeList);
             computeDistancesToCities();
            // setUpList();
@@ -309,7 +332,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onDestroy() {
         super.onDestroy();
         databaseObserver.deleteObserver(this);
-        saveList(storeList);
+   //     saveList(storeList);
     }
 
     public void setUpMap(){
@@ -323,7 +346,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onMarkerClick(Marker marker) {
         if(isAttached==false) {
-            addSlider();
+            addSlider(marker);
             isAttached = true;
         }
         else {
@@ -334,8 +357,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void changeItemAdapter(Store newStore, String newSell, String newBuy) {
         int index=0;
-        if (storeList == null){
-            storeList = retrieveList();
+        while (storeList == null){
+            DatabaseManager databaseManager = new DatabaseManager();
+            storeList = databaseManager.getStoreList();
         }
 
         for(Store s: storeList)
@@ -354,7 +378,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void saveList(ArrayList<Store> list){
+/*    public void saveList(ArrayList<Store> list){
             SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
             SharedPreferences.Editor prefsEditor = appSharedPrefs.edit();
             Gson gson = new Gson();
@@ -365,20 +389,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public ArrayList<Store> retrieveList (){
 
-        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext.getApplicationContext());
+        SharedPreferences appSharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
         Gson gson = new Gson();
         String json = appSharedPrefs.getString("StoreList", null);
         Type type = new TypeToken<List<Store>>(){}.getType();
         return gson.fromJson(json, type);
 
-    }
+    }*/
 
-    private void addSlider (){
+    private void addSlider (Marker marker){
+        markerClicked = marker;
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         SliderFragment sliderFragment = new SliderFragment();
         sliderFragment.listener = this;
-        fragmentTransaction.replace(R.id.map,sliderFragment,"slider");
+        fragmentTransaction.add(R.id.map,sliderFragment,"slider");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
@@ -401,7 +426,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ChangerFragment changerFragment = new ChangerFragment();
-        fragmentTransaction.replace(R.id.map, changerFragment ,"changer");
+        fragmentTransaction.add(R.id.map, changerFragment ,"changer");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
@@ -419,10 +444,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         transaction.commit();
     }
 
+    private void addUtilityButtons(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        UtilityButtonsFragment buttonsFragment = new UtilityButtonsFragment();
+        fragmentTransaction.add(R.id.map, buttonsFragment ,"buttons")
+        .setCustomAnimations(R.xml.fade_anim,0,0,0);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
     @Override
     public void showDetails(String store){
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction().setCustomAnimations(R.xml.bottom_to_top_anim, 0,R.xml.top_to_bottom_anim,0);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction()
+                .setCustomAnimations(R.xml.bottom_to_top_anim, 0,R.xml.top_to_bottom_anim,0);
         DetailsFragment detailsFragment = new DetailsFragment();
         Bundle bundle = new Bundle();
         bundle.putString("key",store);
@@ -455,14 +491,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         float nearest = Float.MAX_VALUE;
         Store nearestStore = null;
         for (Store s: storeList){
-            Log.d(TAG, "Store: "+s.getName()+"  distance: "+s.getDistanceToUser());
             if (s.getDistanceToUser() < nearest){
                 nearest = s.getDistanceToUser();
                 nearestStore = s;
             }
         }
-        Log.d(TAG, "Nearest store to me is: " + nearestStore.getName() );
         return nearestStore;
+    }
+
+    public Store findCheapestToMe(){
+        float cheapest = Float.MAX_VALUE;
+        Store cheapestStore = null;
+        for (Store s: storeList){
+            if(Float.valueOf(s.getBuy())<cheapest){
+                cheapest = Float.valueOf( s.getBuy() );
+                cheapestStore = s;
+            }
+        }
+        return cheapestStore;
     }
 
     public void computeDistancesToCities(){
