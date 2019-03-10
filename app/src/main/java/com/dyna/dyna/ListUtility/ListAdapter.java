@@ -1,5 +1,6 @@
 package com.dyna.dyna.ListUtility;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -10,8 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.dyna.dyna.R;
+import com.dyna.dyna.Utility.CalculatorManager;
 import com.dyna.dyna.Utility.Store;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,17 +24,20 @@ import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListViewHolder> {
 
-    List <Store> storeList;
-    Context context;
+    ArrayList<Store> storeList;
+    Activity activity;
+    CalculatorManager calculatorManager;
 
-    public ListAdapter(Context context,List<Store> storeList) {
+    public ListAdapter(Activity activity,ArrayList<Store> storeList) {
         this.storeList = storeList;
-        this.context = context;
+        this.activity = activity;
+        calculatorManager = new CalculatorManager(activity, storeList);
     }
 
     @Override
     public ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_navigation_list, parent, false);
+        storeList = calculatorManager.computeDistancesToCities();
         return new ListViewHolder(view);
     }
 
@@ -52,11 +58,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListViewHolder> {
             public void onClick(View v) {
                 for(Store S: storeList){
                     if(S.getName().equals(holder.title.getText())){
-                        Uri gmmIntentUri = Uri.parse("google.navigation:q="+S.getLatitude()+","+S.getLongitude());
+                        Uri gmmIntentUri = Uri.parse("google.navigation:"+S.getLatitude()+","+S.getLongitude());
                         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                         mapIntent.setPackage("com.google.android.apps.maps");
-                        if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
-                            context.startActivity(mapIntent);
+                        if (mapIntent.resolveActivity(activity.getPackageManager()) != null) {
+                            activity.startActivity(mapIntent);
                         }
                     }
                 }

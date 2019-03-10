@@ -33,6 +33,6 @@ public class ListViewHolder extends RecyclerView.ViewHolder{
         tv_sell = itemView.findViewById(R.id.tv_sell);
         tv_buy = itemView.findViewById(R.id.tv_buy);
         tv_address = itemView.findViewById(R.id.tv_address);
-        distance = itemView.findViewById(R.id.distance);
+        distance = itemView.findViewById(R.id.tv_distance);
     }
 }

@@ -3,6 +3,7 @@ package com.dyna.dyna.Utility;
 import android.util.Log;
 
 import com.firebase.client.Firebase;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;

@@ -6,13 +6,64 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    android:elevation="1dp"
+    android:elevation="5dp"
     android:orientation="horizontal"
-    xmls:cardCornerRadius="6dp">
+    xmls:cardCornerRadius="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="41dp"
+        android:layout_gravity="bottom"
+        android:elevation="1dp"
+        android:foregroundGravity="bottom"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:textAlignment="center">
+
+        <TextView
+            android:id="@+id/tv_sell"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Sell:"
+            android:textAlignment="center"
+            android:textColor="@android:color/holo_orange_dark"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tv_buy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Buy:"
+            android:textAlignment="center"
+            android:textColor="@android:color/holo_green_light"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/btn_takeToMaps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/start_button"
+            android:drawableLeft="@drawable/outline_navigation_white_18dp"
+            android:drawablePadding="-30dp"
+            android:paddingStart="15dp"
+            android:text="   Start"
+            android:textAlignment="center"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/menu_item_05"
         android:orientation="vertical">
 
         <FrameLayout
@@ -42,13 +93,15 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/distance"
+                    android:id="@+id/tv_distance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="18dp"
-                    android:background="@android:color/holo_orange_dark"
+                    android:background="@drawable/start_button"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:text="000.0 mi"
                     android:textColor="@android:color/white"
                     android:textSize="9dp" />
@@ -59,7 +112,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="35dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -68,51 +121,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Address" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:elevation="1dp"
-            android:gravity="bottom"
-            android:orientation="horizontal"
-            android:textAlignment="center">
-
-            <TextView
-                android:id="@+id/tv_sell"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Sell:"
-                android:textAlignment="center"
-                android:textColor="@android:color/holo_orange_dark"
-                android:textSize="23dp" />
-
-            <TextView
-                android:id="@+id/tv_buy"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Buy:"
-                android:textAlignment="center"
-                android:textColor="@color/colorPrimary"
-                android:textSize="23dp" />
-
-            <Button
-                android:id="@+id/btn_takeToMaps"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="15dp"
-                android:layout_marginBottom="2dp"
-                android:background="@android:color/holo_orange_dark"
-                android:drawableLeft="@drawable/ic_directions_black_24dp"
-                android:text="Directions"
-                android:textAlignment="center"
-                android:textColor="@android:color/white"
-                android:textSize="12sp" />
+                android:text="Address"
+                android:textAlignment="center" />
 
         </LinearLayout>
 

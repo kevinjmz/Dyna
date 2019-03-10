@@ -42,7 +42,7 @@ public class SliderFragment extends android.support.v4.app.Fragment {
 
         final MapsActivity mapsActivity = (MapsActivity)getActivity();
         storeList = mapsActivity.storeList;
-        Maps_itemAdapter itemAdapter = new Maps_itemAdapter(getActivity().getApplicationContext(), storeList, listener);
+        Maps_itemAdapter itemAdapter = new Maps_itemAdapter(getActivity(), storeList, listener);
         slider_container.setAdapter(itemAdapter);
         slider_container.setLayoutManager(layoutManager);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);

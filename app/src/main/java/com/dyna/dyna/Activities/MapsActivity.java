@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
@@ -25,6 +27,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +35,7 @@ import android.widget.Toast;
 import com.dyna.dyna.Changer2Fragment;
 import com.dyna.dyna.ChangerFragment;
 import com.dyna.dyna.DetailsFragment;
+import com.dyna.dyna.Utility.CalculatorManager;
 import com.dyna.dyna.Utility.DatabaseManager;
 import com.dyna.dyna.NavigationDrawer.NavigationListAdapter;
 import com.dyna.dyna.R;
@@ -50,6 +54,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.FirebaseApp;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -72,6 +77,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double currentLocation_latitude;
     private double currentLocation_longitude;
     private String TAG = "Developer";
+    private DrawerLayout  navDrawer;
 
     public ArrayList<Store> storeList;
 
@@ -80,6 +86,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Firebase rootRef;
 
     private Observable databaseObserver;
+    private CalculatorManager calculatorManager;
 
 
     private boolean isAttached = false;
@@ -90,7 +97,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        //FirebaseApp.initializeApp(this);
         setUpMap();
         setUpToolBar();
 
@@ -109,9 +116,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(31.75387, -106.485619)));//focus starting camera to melekPaisano
-        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 12));//adjust zoom on camera
+        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 14));//adjust zoom on camera
         mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
-        mMap.setPadding(0, 100, 0, 0);  //lower the location button
+        mMap.setPadding(0, 300, 0, 0);  //lower the location button
         UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setCompassEnabled(false);//remove compass
         uiSettings.setMapToolbarEnabled(false);//remove buttons triggered by markers
@@ -249,7 +256,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void setUpNavDrawer(ArrayList<Drawable> icons, ArrayList<String> labels) {
-        DrawerLayout navDrawer = findViewById(R.id.nvd_act_main);
+        navDrawer = findViewById(R.id.nvd_act_main);
         NavigationListAdapter adapter = new NavigationListAdapter(this, icons, labels);
         adapter.setOnClickListener(this);
 
@@ -267,7 +274,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 invalidateOptionsMenu();
             }
         };
+        toggle.setDrawerIndicatorEnabled(false);
         navDrawer.addDrawerListener(toggle);
+        toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navDrawer.openDrawer(Gravity.LEFT);
+            }
+        });
+        toggle.setHomeAsUpIndicator(R.drawable.menu_lines_02);
         toggle.syncState();
     }
 
@@ -283,6 +298,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(new Intent(this, ListActivity.class));
                 break;
             case 2:
+                navDrawer.closeDrawer(Gravity.LEFT);
                 addChanger();
                 break;
             case 3:
@@ -322,7 +338,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             storeList = databaseManager.getStoreList();
          //   saveList(storeList);
             addMarkers(storeList);
-            computeDistancesToCities();
+            calculatorManager = new CalculatorManager(this, storeList);
+            calculatorManager.computeDistancesToCities();
            // setUpList();
          //   Log.d("Developer", "markers added! @Maps/update");
         }
@@ -485,54 +502,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (newBuy != null) {
                 childRefBuy.setValue(newBuy);
             }
-    }
-
-    public Store findNearestToMe(){
-        float nearest = Float.MAX_VALUE;
-        Store nearestStore = null;
-        for (Store s: storeList){
-            if (s.getDistanceToUser() < nearest){
-                nearest = s.getDistanceToUser();
-                nearestStore = s;
-            }
-        }
-        return nearestStore;
-    }
-
-    public Store findCheapestToMe(){
-        float cheapest = Float.MAX_VALUE;
-        Store cheapestStore = null;
-        for (Store s: storeList){
-            if(Float.valueOf(s.getBuy())<cheapest){
-                cheapest = Float.valueOf( s.getBuy() );
-                cheapestStore = s;
-            }
-        }
-        return cheapestStore;
-    }
-
-    public void computeDistancesToCities(){
-        Location usr_loc = new Location("");
-        usr_loc.setLatitude(currentLocation_latitude);
-        usr_loc.setLongitude(currentLocation_longitude);
-
-        for(Store s : storeList){
-            float pk = (float) (180.f/Math.PI);
-
-            float a1 = (float)currentLocation_latitude / pk;
-            float a2 = (float)currentLocation_longitude / pk;
-            float b1 = (float)s.getLatitude() / pk;
-            float b2 = (float)s.getLongitude() / pk;
-
-            double t1 = Math.cos(a1) * Math.cos(a2) * Math.cos(b1) * Math.cos(b2);
-            double t2 = Math.cos(a1) * Math.sin(a2) * Math.cos(b1) * Math.sin(b2);
-            double t3 = Math.sin(a1) * Math.sin(b1);
-            double tt = Math.acos(t1 + t2 + t3);
-
-            s.setDistanceToUserInMiles((float)((6366000 * tt)*0.000621371192));
-            s.setGetDistanceToUserInMeters((float)(6366000 * tt));
-        }
-        findNearestToMe();
     }
 
 }

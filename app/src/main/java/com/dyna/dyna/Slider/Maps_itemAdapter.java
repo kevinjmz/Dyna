@@ -1,5 +1,6 @@
 package com.dyna.dyna.Slider;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -27,12 +28,12 @@ import java.util.Observer;
 public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> implements Observer{
 
     List<Store> storeList;
-    Context context;
+    Activity context;
     showDetailsInterface listener;
     GestureDetector mGestureDetector;
     private int clickPosition;
 
-    public Maps_itemAdapter(Context context, List<Store> storeList, showDetailsInterface listener) {
+    public Maps_itemAdapter(Activity context, List<Store> storeList, showDetailsInterface listener) {
         this.storeList = storeList;
         this.context = context;
         this.listener = listener;
@@ -126,7 +127,7 @@ public class Maps_itemAdapter extends RecyclerView.Adapter<Maps_itemViewHolder> 
                 //Log.d("Developer", "Go clicked @" +holder.storeName.getText());
                 for(Store S: storeList){
                     if(S.getName().equals(holder.storeName.getText())){
-                        Uri gmmIntentUri = Uri.parse("google.navigation:q="+S.getLatitude()+","+S.getLongitude());
+                        Uri gmmIntentUri = Uri.parse("google.navigation:"+S.getLatitude()+","+S.getLongitude());
                 Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 mapIntent.setPackage("com.google.android.apps.maps");
                 if (mapIntent.resolveActivity(context.getPackageManager()) != null) {

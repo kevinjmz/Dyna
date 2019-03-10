@@ -60,17 +60,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:text="Address" />
+                    android:text="Address"
+                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="bottom"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:text="Sell:"
@@ -80,14 +81,15 @@
                         android:id="@+id/sell"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="1"
-                        android:gravity="left"
                         android:text="$0"
                         android:textColor="@android:color/holo_orange_dark" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:text="Buy:"
                         android:textColor="@android:color/holo_green_light" />
@@ -96,6 +98,7 @@
                         android:id="@+id/buy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:layout_weight="1"
                         android:text="$0"
                         android:textColor="@android:color/holo_green_light" />
@@ -103,12 +106,15 @@
                     <Button
                         android:id="@+id/go"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="37dp"
+                        android:layout_marginTop="10dp"
                         android:layout_marginEnd="10dp"
-                        android:layout_marginBottom="3dp"
-                        android:layout_weight="1"
-                        android:backgroundTint="@android:color/holo_orange_dark"
-                        android:text="GO"
+                        android:layout_marginBottom="5dp"
+                        android:layout_weight="0.8"
+                        android:background="@drawable/start_button"
+                        android:drawableStart="@drawable/outline_navigation_white_18dp"
+                        android:paddingStart="6dp"
+                        android:text="START"
                         android:textColor="@android:color/white" />
                 </LinearLayout>
 
